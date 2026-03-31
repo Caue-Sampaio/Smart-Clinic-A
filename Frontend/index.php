@@ -1,65 +1,176 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.css" integrity="sha512-Tri8GkI0a8zSIz+n9qGJQp6E42R8+p1Xq2kWc+n7SwL3B38UaYkJaPWe+BMbgC7oP5s8N8u7mJ7+0s1x8u8+Kg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js"></script>
-  </head>
-  <body class="pt-24">
-   
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART CLINIC</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
+    <style>
+        :root {
+            --cor-verde: #28A745; 
+            --cor-azul: #007BFF;  
+        }
 
+        
+        .bg-azul { background-color: var(--cor-azul) !important; }
+        .bg-verde { background-color: var(--cor-verde) !important; }
 
+        
+        .text-azul { color: var(--cor-azul) !important; }
+        .text-verde { color: var(--cor-verde) !important; }
 
-<nav class="bg-white fixed w-full z-20 top-0 left-0 border-b border-gray-200">
-  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-    <a href="#" class="flex items-center space-x-3">
-        <img src="../img/LogoA.png" class="h-20" alt="Flowbite Logo">
-        <span class="self-center text-xl text-slate-900 font-semibold whitespace-nowrap">SmartClinic-A</span>
-    </a>
-    <div class="flex md:order-2 space-x-2 md:space-x-0 rtl:space-x-reverse">
-        <button type="button" class="text-white bg-blue-600 hover:bg-blue-700 border border-transparent focus:ring-4 focus:ring-blue-300 shadow-sm font-medium rounded-md text-sm px-3 py-2 focus:outline-none">Get started</button>
-        <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-slate-700 rounded-md md:hidden hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-controls="navbar-sticky" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
-            <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/></svg>
-        </button>
-    </div>
-    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-      <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-200 rounded-md bg-white md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-transparent">
-        <li>
-          <a href="#" class="block py-2 px-3 text-blue-600 md:text-blue-600 md:bg-transparent md:p-0" aria-current="page">Início</a>
-        </li>
-        <li>
-          <a href="#" class="block py-2 px-3 text-slate-700 md:text-slate-700 hover:text-blue-600 md:p-0">About</a>
-        </li>
-        <li>
-          <a href="#" class="block py-2 px-3 text-slate-700 md:text-slate-700 hover:text-blue-600 md:p-0">Services</a>
-        </li>
-        <li>
-          <a href="#" class="block py-2 px-3 text-slate-700 md:text-slate-700 hover:text-blue-600 md:p-0">Contact</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+        
+        .btn-verde {
+            background-color: var(--cor-verde);
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-verde:hover {
+            background-color: #218838;
+            color: #fff;
+        }
 
+        .btn-azul {
+            background-color: var(--cor-azul);
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-azul:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
 
+        .btn-ciano {
+            background-color: #09529b;
+            color: #fff;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-ciano:hover {
+            background-color: #09529b;
+            color: #fff;
+        }
 
-<div class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs">
-    <a href="#">
-        <img class="rounded-base" src="../img/images.jpg" alt="" />
-    </a>
-    <a href="#">
-        <h5 class="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">Streamlining your design process today.</h5>
-    </a>
-    <p class="mb-6 text-body">In today’s fast-paced digital landscape, fostering seamless collaboration among Developers and IT Operations.</p>
-    <a href="#" class="inline-flex items-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
-        Read more
-        <svg class="w-4 h-4 ms-1.5 rtl:rotate-180 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m14 0-4 4m4-4-4-4"/></svg>
-    </a>
-</div>
+        .border-verde { border: 2px solid var(--cor-verde) !important; }
+        .navbar { padding-top: 1rem; padding-bottom: 1rem; }
+        body { padding-top: 76px; }
+    </style>
+</head>
+<body>
 
-  </body>
+    <nav class="navbar navbar-expand-lg bg-azul navbar-dark fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-bold" href="#home">
+                <img src="../img/logob.png" alt="Logo" class="me-2" style="height: 40px;">
+                SMART CLINIC
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div  class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#servicos">Serviços</a>
+                    </li>
+
+                    <li class="nav-item mt-2 mt-lg-0">
+                        <a href="#contato" class="btn btn-ciano fw-semibold px-4 rounded-pill">Agendar Consulta</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header id="home" class="text-dark d-flex align-items-center" style="min-height: 80vh; background-image: url('../img/logo-fundo.avif'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div  class="container text-center">
+            <h1  class="display-4 fw-bold mb-3">Bem-vindo à SMART CLINIC</h1>
+            <p class="lead mb-4 fs-4">Tecnologia e cuidado humano unidos para sua saúde</p>
+            <a href="#servicos" class="btn btn-azul btn-lg px-5 py-3 rounded-pill fw-semibold shadow">Conheça Nossos Serviços</a>
+        </div>
+    </header>
+
+    <section id="sobre" class="py-5 bg-white">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    
+                    <h5 class="text-azul mb-3">O Significado de Nossa Marca:</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-verde me-2"></i> <strong>Ícone Verde (Cruz e Estetoscópio):</strong> Simboliza saúde e cuidado.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-verde me-2"></i> <strong>Cor Verde:</strong> Representa esperança, renovação e equilíbrio.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-verde me-2"></i> <strong>Cruz Médica:</strong> O símbolo universal e atemporal da medicina.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-verde me-2"></i> <strong>Estetoscópio:</strong> Reflete a prática clínica e a proximidade com o paciente.</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-verde me-2"></i> <strong>Tipografia Azul:</strong> Transmite confiança, seriedade e modernidade.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2 text-center mb-4 mb-lg-0">
+                    <img src="../img/logoA.png" alt="Logo Smart Clinic" class="img-fluid rounded" style="max-width: 80%;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicos" class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="text-azul fw-bold">Nossos Serviços</h2>
+                <p class="text-muted">Cuidado especializado em cada etapa da sua saúde.</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-bandaid fs-1 text-verde mb-3"></i>
+                            <h5 class="card-title text-azul fw-bold">Consultas Médicas</h5>
+                            <p class="card-text">Atendimento humanizado com especialistas em diversas áreas para garantir o seu bem-estar completo.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-clipboard2-pulse fs-1 text-verde mb-3"></i>
+                            <h5 class="card-title text-azul fw-bold">axendamento medico
+                            </h5>
+                            <p class="card-text">Tecnologia de ponta para diagnósticos rápidos, precisos e totalmente seguros em um só lugar.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                        <div class="card-body">
+                            <i class="bi bi-laptop fs-1 text-verde mb-3"></i>
+                            <h5 class="card-title text-azul fw-bold">Telemedicina</h5>
+                            <p class="card-text">Praticidade e segurança com consultas online no conforto da sua casa, sem perder a qualidade.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <footer class="bg-azul text-white text-center py-4">
+        <div class="container">
+            <div class="d-flex justify-content-center mb-3">
+                <a href="#" class="text-white mx-2 fs-4"><i class="bi bi-instagram"></i></a>
+            </div>
+            <p class="mb-0">© 2026 SMART CLINIC:A - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
