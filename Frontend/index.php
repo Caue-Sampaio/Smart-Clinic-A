@@ -27,37 +27,54 @@
             background-color: var(--cor-verde);
             color: #fff;
             border: none;
-            transition: 0.3s;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
         }
         .btn-verde:hover {
             background-color: #218838;
             color: #fff;
+            transform: scale(1.05);
         }
 
         .btn-azul {
             background-color: var(--cor-azul);
             color: #fff;
             border: none;
-            transition: 0.3s;
+            transition: transform 0.3s ease, color 0.3s ease;
         }
         .btn-azul:hover {
-            background-color: #0056b3;
             color: #fff;
+            transform: scale(1.05);
         }
 
         .btn-ciano {
             background-color: #09529b;
             color: #fff;
             border: none;
-            transition: 0.3s;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
         }
         .btn-ciano:hover {
-            background-color: #09529b;
+            background-color: #4896e4;
             color: #fff;
+            transform: scale(1.05);
+        }
+
+        .card-service {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-service:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
         }
 
         .border-verde { border: 2px solid var(--cor-verde) !important; }
         .navbar { padding-top: 1rem; padding-bottom: 1rem; }
+        .nav-link {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        .nav-link:hover {
+            transform: scale(1.05);
+        }
         body { padding-top: 76px; }
     </style>
 </head>
@@ -83,6 +100,12 @@
                         <a class="nav-link text-white" href="#servicos">Serviços</a>
                     </li>
 
+                    <li class="nav-item mt-2 mt-lg-0 me-2">
+                        <a href="login.php" class="btn btn-azul fw-semibold px-4 rounded-pill">Login</a>
+                    </li>
+                    <li class="nav-item mt-2 mt-lg-0 me-2">
+                        <a href="logout.php" class="btn btn-verde fw-semibold px-4 rounded-pill">Sair</a>
+                    </li>
                     <li class="nav-item mt-2 mt-lg-0">
                         <a href="#contato" class="btn btn-ciano fw-semibold px-4 rounded-pill">Agendar Consulta</a>
                     </li>
@@ -129,7 +152,7 @@
             
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                    <div class="card card-service h-100 border-verde shadow-sm text-center p-4">
                         <div class="card-body">
                             <i class="bi bi-bandaid fs-1 text-verde mb-3"></i>
                             <h5 class="card-title text-azul fw-bold">Consultas Médicas</h5>
@@ -138,7 +161,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                    <div class="card card-service h-100 border-verde shadow-sm text-center p-4">
                         <div class="card-body">
                             <i class="bi bi-clipboard2-pulse fs-1 text-verde mb-3"></i>
                             <h5 class="card-title text-azul fw-bold">axendamento medico
@@ -148,7 +171,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card h-100 border-verde shadow-sm text-center p-4">
+                    <div class="card card-service h-100 border-verde shadow-sm text-center p-4">
                         <div class="card-body">
                             <i class="bi bi-laptop fs-1 text-verde mb-3"></i>
                             <h5 class="card-title text-azul fw-bold">Telemedicina</h5>
