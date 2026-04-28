@@ -149,7 +149,7 @@ footer {
         SMART CLINIC
     </a>
 
-    <div class="ms-auto d-flex gap-3 align-items-center">
+    <div class="ms-auto d-flex gap-3 align-items-center">   
         <div class="dropdown">
             <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 500;">
                 <i class="bi bi-gear" style="font-size: 20px;"></i>

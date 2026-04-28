@@ -13,104 +13,167 @@ session_start();
 
     <style>
         :root {
-            --cor-verde: #28A745; 
-            --cor-azul: #007BFF;  
+            --azul: #2563eb;
+            --azul-escuro: #1e40af;
+            --verde: #22c55e;
+            --fundo: #f1f5f9;
         }
 
-        
-        .bg-azul { background-color: var(--cor-azul) !important; }
-        .bg-verde { background-color: var(--cor-verde) !important; }
+        body {
+            background-color: var(--fundo);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
 
-        
-        .text-azul { color: var(--cor-azul) !important; }
-        .text-verde { color: var(--cor-verde) !important; }
-
-        
         .btn-verde {
-            background-color: var(--cor-verde);
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             color: #fff;
             border: none;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
         .btn-verde:hover {
-            background-color: #218838;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
             color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
         }
 
         .btn-azul {
-            background-color: var(--cor-azul);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: #fff;
             border: none;
-            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+            transition: all 0.3s ease;
         }
         .btn-azul:hover {
-            background-color: #0056b3;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
             color: #fff;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
         }
 
-        .btn-ciano {
-            background-color: #09529b;
-            color: #fff;
+        .card-modern {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             border: none;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
-        .btn-ciano:hover {
-            background-color: #4896e4;
+        .card-modern:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-modern {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .table-modern thead {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: #fff;
+        }
+        .table-modern th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        .table-modern td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        .table-modern tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1e3a8a 100%) !important;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #22c55e !important;
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .dropdown-item {
+            transition: all 0.2s ease;
+            padding: 0.5rem 1rem;
+        }
+        .dropdown-item:hover {
+            background-color: #2563eb;
             color: #fff;
         }
 
-        .card-service {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-service:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+        .page-header {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
         }
 
-        .border-verde { border: 2px solid var(--cor-verde) !important; }
-        .navbar { padding-top: 1rem; padding-bottom: 1rem; }
-        body { padding-top: 76px; }
+        .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .badge-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
     <?php ini_set('display_errors', 1); error_reporting(E_ALL); ?>
 
-    <nav class="navbar navbar-expand-lg bg-azul navbar-dark fixed-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center fw-bold" href="index.php">
-                <img src="../img/logob.png" alt="Logo" class="me-2" style="height: 40px;">
-                SMART CLINIC
+                <i class="bi bi-hospital me-2"></i>SMART CLINIC
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <div  class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Gerenciar Dados
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear me-1"></i>Gerenciar Dados
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="paciente.php">Pacientes</a></li>
-                            <li><a class="dropdown-item" href="medico.php">Médicos</a></li>
-                            <li><a class="dropdown-item" href="agendamento.php">Agendamentos</a></li>
-                            <li><a class="dropdown-item" href="consulta.php">Consultas</a></li>
-                            <li><a class="dropdown-item" href="prescrever.php">Prescrever</a></li>
-                            <li><a class="dropdown-item" href="instituicao.php">Instituições</a></li>
-                            <li><a class="dropdown-item" href="medicamento.php">Medicamentos</a></li>
-                            <li><a class="dropdown-item" href="declaracao.php">Declarações</a></li>
-                            <li><a class="dropdown-item" href="exame.php">Exames</a></li>
-                            <li><a class="dropdown-item" href="monitoramento.php">Monitoramentos</a></li>
-                            <li><a class="dropdown-item" href="prontuario.php">Prontuários</a></li>
-                            <li><a class="dropdown-item" href="receita.php">Receitas</a></li>
+                            <li><a class="dropdown-item" href="paciente.php"><i class="bi bi-people me-2"></i>Pacientes</a></li>
+                            <li><a class="dropdown-item" href="medico.php"><i class="bi bi-doctor me-2"></i>Médicos</a></li>
+                            <li><a class="dropdown-item" href="agendamento.php"><i class="bi bi-calendar-check me-2"></i>Agendamentos</a></li>
+                            <li><a class="dropdown-item" href="consulta.php"><i class="bi bi-clipboard-pulse me-2"></i>Consultas</a></li>
+                            <li><a class="dropdown-item" href="prescrever.php"><i class="bi bi-prescription me-2"></i>Prescrever</a></li>
+                            <li><a class="dropdown-item" href="instituicao.php"><i class="bi bi-building me-2"></i>Instituições</a></li>
+                            <li><a class="dropdown-item" href="medicamento.php"><i class="bi bi-capsule me-2"></i>Medicamentos</a></li>
+                            <li><a class="dropdown-item" href="declaracao.php"><i class="bi bi-file-earmark-text me-2"></i>Declarações</a></li>
+                            <li><a class="dropdown-item" href="exame.php"><i class="bi bi-file-earmark-medical me-2"></i>Exames</a></li>
+                            <li><a class="dropdown-item" href="monitoramento.php"><i class="bi bi-heart-pulse me-2"></i>Monitoramentos</a></li>
+                            <li><a class="dropdown-item" href="prontuario.php"><i class="bi bi-file-person me-2"></i>Prontuários</a></li>
+                            <li><a class="dropdown-item" href="receita.php"><i class="bi bi-receipt me-2"></i>Receitas</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item mt-2 mt-lg-0">
-                        <a href="#contato" class="btn btn-ciano fw-semibold px-4 rounded-pill">Agendar Consulta</a>
+                    <li class="nav-item mt-2 mt-lg-0 ms-lg-3">
+                        <a href="logout.php" class="btn btn-outline-light fw-semibold px-4 rounded-pill">
+                            <i class="bi bi-box-arrow-right me-2"></i>Sair
+                        </a>
                     </li>
                 </ul>
             </div>
