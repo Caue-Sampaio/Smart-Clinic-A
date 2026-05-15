@@ -1,0 +1,136 @@
+:root {
+    --azul: #2563eb;
+    --azul-escuro: #1e40af;
+    --verde: #22c55e;
+    --fundo: #f1f5f9;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--fundo);
+    padding-top: 80px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar {
+    background: linear-gradient(90deg, var(--azul), var(--azul-escuro));
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.bg-azul { background-color: var(--azul) !important; }
+.bg-verde { background-color: var(--verde) !important; }
+
+.text-azul { color: var(--azul) !important; }
+.text-verde { color: var(--verde) !important; }
+
+.border-verde { border: 2px solid var(--verde) !important; }
+
+.card-modern {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.btn-verde {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-verde:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.btn-azul {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-azul:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 102, 235, 0.4);
+}
+
+.btn-ciano {
+    background: linear-gradient(135deg, #09529b, #1e40af);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 18px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-ciano:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(9, 82, 155, 0.4);
+}
+
+.form-control:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+.table-modern thead {
+    background: #f1f5f9;
+}
+
+.table-modern th {
+    color: #475569;
+}
+
+.table-modern tr:hover {
+    background: #eef2ff;
+}
+
+.card-service {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-service:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+}
+
+footer {
+    background: transparent;
+    color: #64748b;
+}
+
+.login-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-header {
+    background: var(--azul);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.login-body {
+    padding: 2rem;
+}

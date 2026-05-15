@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+<?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -122,36 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1e3a8a 100%); box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-<div class="container-fluid px-5">
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
-        <img src="../img/logob.png" alt="Logo" class="me-2" style="height: 40px;">
-        SMART CLINIC
-    </a>
-
-    <div class="ms-auto d-flex gap-3 align-items-center">
-        <div class="dropdown">
-            <button class="btn btn-link text-white text-decoration-none d-flex align-items-center gap-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 500;">
-                <i class="bi bi-gear" style="font-size: 20px;"></i>
-                Gerenciar Dados
-                <i class="bi bi-chevron-down" style="font-size: 16px;"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="paciente.php"><i class="bi bi-person me-2"></i>Pacientes</a></li>
-                <li><a class="dropdown-item" href="medico.php"><i class="bi bi-stethoscope me-2"></i>Médicos</a></li>
-                <li><a class="dropdown-item" href="instituicao.php"><i class="bi bi-building me-2"></i>Instituições</a></li>
-                <li><a class="dropdown-item" href="medicamento.php"><i class="bi bi-capsule me-2"></i>Medicamentos</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
-            </ul>
-        </div>
-        <a href="#" class="btn btn-light rounded-pill px-4 d-flex align-items-center gap-2" style="font-weight: 500;">
-            <i class="bi bi-calendar-check" style="font-size: 18px;"></i>
-            Agendar Consulta
-        </a>
-    </div>
-</div>
-</nav>
+<?php renderNavbar(); ?>
 
 <section class="py-5">
 <div class="container-lg" style="max-width: 1200px;">
@@ -280,3 +252,4 @@ foreach ($medicamentos as $med) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

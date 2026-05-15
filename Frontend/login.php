@@ -1,3 +1,66 @@
+<?php
+session_start();
+$error = null;
+$storedEmail = '';
+$selectedRole = '';
+
+require_once dirname(__DIR__) . '/Backend/controller/Database.php';
+
+function authenticateUser(string $role, string $email, string $password): ?array {
+    $db = Database::getConnection();
+
+    if ($role === 'paciente') {
+        $sql = 'SELECT cod, nome, email, cpf, senha FROM paciente WHERE email = :email LIMIT 1';
+    } else {
+        $sql = 'SELECT cod, nome, email, cpf, crm, senha FROM medico WHERE email = :email LIMIT 1';
+    }
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute(['email' => $email]);
+    $user = $stmt->fetch();
+
+    if ($user && $user['senha'] === $password) {
+        return $user;
+    }
+
+    return null;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $role = trim($_POST['role'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $storedEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+
+    if ($role === '' || $email === '' || $password === '') {
+        $error = 'Por favor, preencha todos os campos.';
+    } else {
+        try {
+            $user = authenticateUser($role, $email, $password);
+            if ($user) {
+                $_SESSION['role'] = $role;
+                $_SESSION['user_id'] = $user['cod'];
+                $_SESSION['user_name'] = $user['nome'];
+                $_SESSION['user_email'] = $user['email'];
+
+                if ($role === 'paciente') {
+                    header('Location: paciente_dashboard.php');
+                    exit;
+                }
+                if ($role === 'medico') {
+                    header('Location: medico_dashboard.php');
+                    exit;
+                }
+            }
+
+            $error = 'Email ou senha incorretos.';
+        } catch (PDOException $e) {
+            $error = 'Erro ao conectar ao banco de dados. Tente novamente mais tarde.';
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,54 +70,17 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 
     <style>
         :root {
-            --cor-verde: #28A745;
-            --cor-azul: #007BFF;
-        }
-
-        .bg-azul { background-color: var(--cor-azul) !important; }
-        .bg-verde { background-color: var(--cor-verde) !important; }
-        .text-azul { color: var(--cor-azul) !important; }
-        .text-verde { color: var(--cor-verde) !important; }
-
-        .btn-verde {
-            background-color: var(--cor-verde);
-            color: #fff;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-verde:hover {
-            background-color: #218838;
-            color: #fff;
-        }
-
-        .btn-azul {
-            background-color: var(--cor-azul);
-            color: #fff;
-            border: none;
-            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-        }
-        .btn-azul:hover {
-            background-color: #0056b3;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        .btn-ciano {
-            background-color: #09529b;
-            color: #fff;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-ciano:hover {
-            background-color: #4896e4;
-            color: #fff;
+            --azul: #2563eb;
+            --azul-escuro: #1e40af;
+            --verde: #22c55e;
         }
 
         body {
-            background: linear-gradient(135deg, var(--cor-azul), var(--cor-verde));
+            background: linear-gradient(135deg, var(--azul), var(--verde));
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -71,7 +97,7 @@
         }
 
         .login-header {
-            background: var(--cor-azul);
+            background: var(--azul);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -82,7 +108,7 @@
         }
 
         .form-control:focus {
-            border-color: var(--cor-verde);
+            border-color: var(--verde);
             box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
         }
     </style>
@@ -97,45 +123,6 @@
         </div>
 
         <div class="login-body">
-            <?php
-            session_start();
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                $role = $_POST['role'];
-                $username = $_POST['username'];
-                $password = $_POST['password'];
-
-                $users = [
-                    'paciente' => [
-                        'paciente1' => 'paciente123',
-                        'paciente2' => 'senha123'
-                    ],
-                    'medico' => [
-                        'medico1' => 'medico123',
-                        'medico2' => 'senha456'
-                    ]
-                ];
-
-                if (!empty($role) && !empty($username) && !empty($password)) {
-                    if (isset($users[$role][$username]) && $users[$role][$username] === $password) {
-                        $_SESSION['role'] = $role;
-                        $_SESSION['username'] = $username;
-                        switch ($role) {
-                            case 'paciente':
-                                header('Location: paciente_dashboard.php');
-                                exit;
-                            case 'medico':
-                                header('Location: medico_dashboard.php');
-                                exit;
-                        }
-                    } else {
-                        $error = "Usuário ou senha incorretos.";
-                    }
-                } else {
-                    $error = "Por favor, preencha todos os campos.";
-                }
-            }
-            ?>
-
             <?php if (isset($error)): ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $error; ?>
@@ -147,14 +134,14 @@
                     <label for="role" class="form-label">Perfil</label>
                     <select class="form-select" id="role" name="role" required>
                         <option value="">Selecione seu perfil</option>
-                        <option value="paciente">Paciente</option>
-                        <option value="medico">Médico</option>
+                        <option value="paciente"<?php echo ($selectedRole === 'paciente') ? ' selected' : ''; ?>>Paciente</option>
+                        <option value="medico"<?php echo ($selectedRole === 'medico') ? ' selected' : ''; ?>>Médico</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label for="username" class="form-label">Usuário</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Digite seu usuário" required>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu email" value="<?php echo $storedEmail; ?>" required>
                 </div>
 
                 <div class="mb-3">

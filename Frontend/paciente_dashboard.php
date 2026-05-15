@@ -5,6 +5,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'paciente') {
     exit;
 }
 ?>
+<?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -15,95 +16,11 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'paciente') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-    <style>
-        :root {
-            --cor-verde: #28A745;
-            --cor-azul: #007BFF;
-        }
-
-
-        .bg-azul { background-color: var(--cor-azul) !important; }
-        .bg-verde { background-color: var(--cor-verde) !important; }
-
-
-        .text-azul { color: var(--cor-azul) !important; }
-        .text-verde { color: var(--cor-verde) !important; }
-
-
-        .btn-verde {
-            background-color: var(--cor-verde);
-            color: #fff;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-verde:hover {
-            background-color: #218838;
-            color: #fff;
-        }
-
-        .btn-azul {
-            background-color: var(--cor-azul);
-            color: #fff;
-            border: none;
-            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-        }
-        .btn-azul:hover {
-            background-color: #0056b3;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        .btn-ciano {
-            background-color: #09529b;
-            color: #fff;
-            border: none;
-            transition: 0.3s;
-        }
-        .btn-ciano:hover {
-            background-color: #4896e4;
-            color: #fff;
-        }
-
-        .card-service {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-service:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
-        }
-
-        .border-verde { border: 2px solid var(--cor-verde) !important; }
-        .navbar { padding-top: 1rem; padding-bottom: 1rem; }
-        html, body { height: 100%; }
-        body { padding-top: 76px; display: flex; flex-direction: column; }
-        section { flex: 1; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg bg-azul navbar-dark fixed-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center fw-bold" href="index.php">
-                <img src="../img/logob.png" alt="Logo" class="me-2" style="height: 40px;">
-                SMART CLINIC
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div  class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="paciente_dashboard.php">Meu Portal</a>
-                    </li>
-                    <li class="nav-item mt-2 mt-lg-0">
-                        <a href="logout.php" class="btn btn-ciano fw-semibold px-4 rounded-pill">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php renderNavbar(); ?>
 
     <section class="py-5 bg-light">
         <div class="container py-4">
@@ -187,7 +104,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'paciente') {
         </div>
     </section>
 
-    <footer class="bg-azul text-white text-center py-4">
+    <footer class="text-center py-4">
         <div class="container">
             <div class="d-flex justify-content-center mb-3">
                 <a href="#" class="text-white mx-2 fs-4"><i class="bi bi-instagram"></i></a>
@@ -199,3 +116,5 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'paciente') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
