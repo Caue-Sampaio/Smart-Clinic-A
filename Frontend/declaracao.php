@@ -1,4 +1,10 @@
-<?php require_once __DIR__ . '/navbar.php'; ?>
+<?php 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+ob_start();
+require_once __DIR__ . '/navbar.php'; 
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -91,10 +97,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/Medi
 $controller = new DeclaracaoController();
 $pacienteController = new PacienteController();
 $medicoController = new MedicoController();
+$action = isset($_GET['action']) ? $_GET['action'] : 'list';
+$isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+$pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+
+if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+    header('Location: declaracao.php');
+    exit;
+}
+
 $pacientes = $pacienteController->getAll();
 $medicos = $medicoController->getAll();
-
-$action = isset($_GET['action']) ? $_GET['action'] : 'list';
 $declaracao = null;
 
 if ($action == 'edit' && isset($_GET['id'])) {
@@ -106,6 +119,10 @@ if ($action == 'edit' && isset($_GET['id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($isPaciente) {
+        header('Location: declaracao.php');
+        exit;
+    }
     if (isset($_POST['delete_id'])) {
         $controller->delete($_POST['delete_id']);
         header('Location: declaracao.php');
@@ -151,9 +168,11 @@ if ($action == 'list') {
         </div>
     </div>
 
+    <?php if (!$isPaciente) { ?>
     <a href="declaracao.php?action=create" class="btn btn-verde d-flex align-items-center gap-2" style="margin-top: 5px;">
         <i class="bi bi-plus-lg" style="font-size: 18px;"></i> Adicionar Nova Declaração
     </a>
+    <?php } ?>
 </div>
 
 <div class="card-modern">
@@ -173,7 +192,11 @@ if ($action == 'list') {
 
 <tbody>
 <?php
-$declaracoes = $controller->getAll();
+if ($isPaciente && !empty($pacienteLogadoCod)) {
+    $declaracoes = $controller->getByPaciente($pacienteLogadoCod);
+} else {
+    $declaracoes = $controller->getAll();
+}
 foreach ($declaracoes as $dec) {
     echo "<tr style='border-bottom: 1px solid #e2e8f0;'>";
     echo "<td style='padding: 15px; color: #0f172a; font-weight: 500;'>{$dec['cod']}</td>";
@@ -182,17 +205,19 @@ foreach ($declaracoes as $dec) {
     echo "<td style='padding: 15px; color: #0f172a;'>{$dec['tipo']}</td>";
     echo "<td style='padding: 15px; color: #0f172a;'>{$dec['motivo']}</td>";
     echo "<td style='padding: 15px; color: #0f172a;'>{$dec['validade']}</td>";
-    echo "<td style='padding: 15px;'>
-        <a href='?action=edit&id={$dec['cod']}' class='btn btn-sm me-2' style='background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
+    echo "<td style='padding: 15px;'>";
+    if (!$isPaciente) {
+        echo "<a href='?action=edit&id={$dec['cod']}' class='btn btn-sm me-2' style='background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
             <i class='bi bi-pencil' style='font-size: 14px;'></i> Editar
-        </a>
-        <form method='POST' style='display:inline;'>
+        </a>";
+        echo "<form method='POST' style='display:inline;'>
             <input type='hidden' name='delete_id' value='{$dec['cod']}'>
             <button class='btn btn-sm' style='background: #ef4444; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
                 <i class='bi bi-trash' style='font-size: 14px;'></i> Deletar
             </button>
-        </form>
-    </td>";
+        </form>";
+    }
+    echo "</td>";
     echo "</tr>";
 }
 ?>
@@ -204,7 +229,8 @@ foreach ($declaracoes as $dec) {
 <?php } else { ?>
 
 <div class="card-modern">
-<h2 class="title mb-4"><?= $action == 'create' ? 'Nova Declaração' : 'Editar Declaração' ?></h2>
+<h2 class="title mb-3"><?= $action == 'create' ? 'Nova Declaração' : 'Editar Declaração' ?></h2>
+<p class="text-muted mb-4"><?php echo $action == 'create' ? 'Preencha os dados para adicionar uma declaração.' : 'Atualize os dados da declaração.'; ?></p>
 
 <form method="POST">
 
@@ -212,55 +238,62 @@ foreach ($declaracoes as $dec) {
 <input type="hidden" name="cod" value="<?= $declaracao['cod'] ?>">
 <?php } ?>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Paciente</label>
-        <select name="fk_paciente_cod" class="form-control" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
-        <?php foreach ($pacientes as $pac) { ?>
-        <option value="<?= $pac['cod'] ?>"><?= $pac['nome'] ?></option>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Paciente</label>
+        <select name="fk_paciente_cod" class="form-control form-control-lg" <?php echo $isPaciente ? 'disabled' : ''; ?>>
+        <?php foreach ($pacientes as $pac) { 
+            $selected = ($action == 'edit' && $pac['cod'] == ($declaracao['fk_paciente_cod'] ?? '')) ? 'selected' : '';
+        ?>
+        <option value="<?= $pac['cod'] ?>" <?= $selected ?>><?= $pac['nome'] ?></option>
+        <?php } ?>
+        </select>
+        <?php if ($isPaciente): ?>
+            <input type="hidden" name="fk_paciente_cod" value="<?= htmlspecialchars($declaracao['fk_paciente_cod'] ?? $pacienteLogadoCod) ?>">
+        <?php endif; ?>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Médico</label>
+        <select name="fk_medico_cod" class="form-control form-control-lg">
+        <?php foreach ($medicos as $med) { 
+            $selected = ($action == 'edit' && $med['cod'] == ($declaracao['fk_medico_cod'] ?? '')) ? 'selected' : '';
+        ?>
+        <option value="<?= $med['cod'] ?>" <?= $selected ?>><?= $med['nome'] ?></option>
         <?php } ?>
         </select>
     </div>
+</div>
 
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Médico</label>
-        <select name="fk_medico_cod" class="form-control" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
-        <?php foreach ($medicos as $med) { ?>
-        <option value="<?= $med['cod'] ?>"><?= $med['nome'] ?></option>
-        <?php } ?>
-        </select>
+<div class="row g-3 mt-2">
+    <div class="col-md-6">
+        <label class="form-label">Tipo</label>
+        <input class="form-control form-control-lg" name="tipo" value="<?= $action == 'edit' ? htmlspecialchars($declaracao['tipo']) : '' ?>" placeholder="Tipo de declaração">
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Motivo</label>
+        <input class="form-control form-control-lg" name="motivo" value="<?= $action == 'edit' ? htmlspecialchars($declaracao['motivo']) : '' ?>" placeholder="Motivo da declaração">
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Tipo</label>
-        <input class="form-control" name="tipo" value="<?= $action == 'edit' ? $declaracao['tipo'] : '' ?>" placeholder="Tipo de declaração" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
+<div class="row g-3 mt-2">
+    <div class="col-md-6">
+        <label class="form-label">Validade</label>
+        <input class="form-control form-control-lg" type="date" name="validade" value="<?= $action == 'edit' ? htmlspecialchars($declaracao['validade']) : '' ?>">
     </div>
 
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Motivo</label>
-        <input class="form-control" name="motivo" value="<?= $action == 'edit' ? $declaracao['motivo'] : '' ?>" placeholder="Motivo da declaração" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Validade</label>
-        <input class="form-control" type="date" name="validade" value="<?= $action == 'edit' ? $declaracao['validade'] : '' ?>" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
-    </div>
-
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Data/Hora</label>
-        <input class="form-control" type="datetime-local" name="data_hora" value="<?= $action == 'edit' ? $declaracao['data_hora'] : '' ?>" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
+    <div class="col-md-6">
+        <label class="form-label">Data/Hora</label>
+        <input class="form-control form-control-lg" type="datetime-local" name="data_hora" value="<?= $action == 'edit' ? htmlspecialchars($declaracao['data_hora']) : '' ?>">
     </div>
 </div>
 
-<div class="d-flex gap-2">
-    <button type="submit" class="btn btn-verde">
+<div class="d-flex gap-2 mt-4">
+    <button type="submit" class="btn btn-verde btn-lg">
         <i class="bi bi-check-lg"></i> Salvar
     </button>
-    <a href="declaracao.php" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 18px;">
+    <a href="declaracao.php" class="btn btn-secondary btn-lg">
         <i class="bi bi-x-lg"></i> Cancelar
     </a>
 </div>
@@ -280,5 +313,6 @@ foreach ($declaracoes as $dec) {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<?php ob_end_flush(); ?>
 </body>
 </html>

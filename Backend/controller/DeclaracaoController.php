@@ -14,6 +14,10 @@ class DeclaracaoController extends BaseController {
         return $this->dao->getAll();
     }
 
+    public function getByPaciente($pacienteCod) {
+        return $this->dao->getByPaciente($pacienteCod);
+    }
+
     public function getById($cod) {
         return $this->dao->getById($cod);
     }

@@ -27,7 +27,7 @@ if (!function_exists('renderNavbar')) {
         } elseif ($role === 'medico') {
             $dropdownLinks = [
                 ['href' => 'paciente.php', 'icon' => 'bi bi-person', 'label' => 'Pacientes'],
-                ['href' => 'medico.php', 'icon' => 'bi bi-stethoscope', 'label' => 'Médicos'],
+                ['href' => 'medico.php', 'icon' => 'bi bi-person', 'label' => 'Médicos'],
                 ['href' => 'instituicao.php', 'icon' => 'bi bi-building', 'label' => 'Instituições'],
                 ['href' => 'medicamento.php', 'icon' => 'bi bi-capsule', 'label' => 'Medicamentos'],
                 ['href' => 'agendamento.php', 'icon' => 'bi bi-calendar-check', 'label' => 'Agendamentos'],

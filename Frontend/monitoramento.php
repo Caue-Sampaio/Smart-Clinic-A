@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
@@ -28,6 +30,13 @@ session_start();
             $controller = new MonitoramentoController();
             $pacienteController = new PacienteController();
             $pacientes = $pacienteController->getAll();
+            $isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+            $pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+            $pacienteLogadoCpf = null;
+            if ($isPaciente && !empty($pacienteLogadoCod)) {
+                $pacienteAtual = $pacienteController->getById($pacienteLogadoCod);
+                $pacienteLogadoCpf = $pacienteAtual['cpf'] ?? null;
+            }
 
             $action = isset($_GET['action']) ? $_GET['action'] : 'list';
             $monitoramento = null;
@@ -41,11 +50,11 @@ session_start();
             }
 
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                if (isset($_POST['delete_id'])) {
+                if (isset($_POST['delete_id']) && !$isPaciente) {
                     $controller->delete($_POST['delete_id']);
                     header('Location: monitoramento.php');
                     exit;
-                } elseif ($action == 'create') {
+                } elseif ($action == 'create' && !$isPaciente) {
                     $data = [
                         'fk_paciente_cpf' => $_POST['fk_paciente_cpf'],
                         'altura' => $_POST['altura'] ?: null,
@@ -68,11 +77,16 @@ session_start();
                 }
             }
 
+            if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+                header('Location: monitoramento.php');
+                exit;
+            }
+
             if ($action == 'list') {
                 ?>
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 class="text-azul fw-bold">Lista de Monitoramentos</h2>
-                    <?php if (!isset($_SESSION['role']) || $_SESSION['role'] != 'paciente'): ?>
+                    <?php if (!$isPaciente): ?>
                     <a href="monitoramento.php?action=create" class="btn btn-verde">Adicionar Novo Monitoramento</a>
                     <?php endif; ?>
                 </div>
@@ -93,6 +107,11 @@ session_start();
                         <tbody>
                             <?php
                             $monitoramentos = $controller->getAll();
+                            if ($isPaciente && !empty($pacienteLogadoCpf)) {
+                                $monitoramentos = array_filter($monitoramentos, function($mon) use ($pacienteLogadoCpf) {
+                                    return $mon['fk_paciente_cpf'] === $pacienteLogadoCpf;
+                                });
+                            }
                             foreach ($monitoramentos as $mon) {
                                 echo "<tr>";
                                 echo "<td>" . htmlspecialchars($mon['cod']) . "</td>";
@@ -120,39 +139,50 @@ session_start();
             } elseif ($action == 'create' || $action == 'edit') {
                 $title = $action == 'create' ? 'Adicionar Novo Monitoramento' : 'Editar Monitoramento';
                 ?>
-                <h2 class="text-azul fw-bold mb-4"><?php echo $title; ?></h2>
-                
-                <form method="POST" action="">
-                    <?php if ($action == 'edit') { ?>
-                        <input type="hidden" name="cod" value="<?php echo htmlspecialchars($monitoramento['cod']); ?>">
-                    <?php } ?>
-                    <div class="mb-3">
-                        <label for="fk_paciente_cpf" class="form-label">Paciente</label>
-                        <select class="form-control" id="fk_paciente_cpf" name="fk_paciente_cpf" required>
-                            <?php foreach ($pacientes as $pac) { 
-                                $selected = ($action == 'edit' && $pac['cpf'] == $monitoramento['fk_paciente_cpf']) ? 'selected' : '';
-                                ?>
-                                <option value="<?php echo htmlspecialchars($pac['cpf']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($pac['nome']); ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="altura" class="form-label">Altura</label>
-                            <input type="number" step="0.01" class="form-control" id="altura" name="altura" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['altura']) : ''; ?>">
+                <div class="card-modern">
+                    <h2 class="title mb-3"><?php echo $title; ?></h2>
+                    <p class="text-muted mb-4"><?php echo $action == 'create' ? 'Registre as medidas do paciente.' : 'Atualize as medidas.'; ?></p>
+
+                    <form method="POST" action="">
+                        <?php if ($action == 'edit') { ?>
+                            <input type="hidden" name="cod" value="<?php echo htmlspecialchars($monitoramento['cod']); ?>">
+                        <?php } ?>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="fk_paciente_cpf" class="form-label">Paciente</label>
+                                <select class="form-control form-control-lg" id="fk_paciente_cpf" name="fk_paciente_cpf" required <?php echo $isPaciente ? 'disabled' : ''; ?>>
+                                    <?php foreach ($pacientes as $pac) {
+                                        $selected = ($action == 'edit' && $pac['cpf'] == ($monitoramento['fk_paciente_cpf'] ?? '')) ? 'selected' : '';
+                                    ?>
+                                    <option value="<?php echo htmlspecialchars($pac['cpf']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($pac['nome']); ?></option>
+                                    <?php } ?>
+                                </select>
+                                <?php if ($isPaciente): ?>
+                                    <input type="hidden" name="fk_paciente_cpf" value="<?php echo htmlspecialchars($monitoramento['fk_paciente_cpf'] ?? $pacienteLogadoCpf); ?>">
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="altura" class="form-label">Altura (m)</label>
+                                <input type="number" step="0.01" class="form-control form-control-lg" id="altura" name="altura" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['altura']) : ''; ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="peso" class="form-label">Peso (kg)</label>
+                                <input type="number" step="0.01" class="form-control form-control-lg" id="peso" name="peso" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['peso']) : ''; ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="imc" class="form-label">IMC</label>
+                                <input type="number" step="0.01" class="form-control form-control-lg" id="imc" name="imc" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['imc']) : ''; ?>">
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label for="peso" class="form-label">Peso</label>
-                            <input type="number" step="0.01" class="form-control" id="peso" name="peso" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['peso']) : ''; ?>">
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-verde btn-lg"><i class="bi bi-check-lg"></i> Salvar</button>
+                            <a href="monitoramento.php" class="btn btn-secondary btn-lg">Cancelar</a>
                         </div>
-                        <div class="col-md-4">
-                            <label for="imc" class="form-label">IMC</label>
-                            <input type="number" step="0.01" class="form-control" id="imc" name="imc" value="<?php echo $action == 'edit' ? htmlspecialchars($monitoramento['imc']) : ''; ?>">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-verde">Salvar</button>
-                    <a href="monitoramento.php" class="btn btn-secondary">Cancelar</a>
-                </form>
+                    </form>
+                </div>
                 <?php
             }
             ?>

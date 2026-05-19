@@ -7,6 +7,12 @@ class ReceitaDAO extends BaseDAO {
         return $stmt->fetchAll();
     }
 
+    public function getByPaciente($pacienteCod) {
+        $stmt = $this->db->prepare('SELECT r.*, p.nome as paciente_nome, m.nome as medico_nome FROM receita r LEFT JOIN paciente p ON r.fk_paciente_cod = p.cod LEFT JOIN medico m ON r.fk_medico_cod = m.cod WHERE r.fk_paciente_cod = ?');
+        $stmt->execute([$pacienteCod]);
+        return $stmt->fetchAll();
+    }
+
     public function getById($cod) {
         $stmt = $this->db->prepare('SELECT * FROM receita WHERE cod = ?');
         $stmt->execute([$cod]);

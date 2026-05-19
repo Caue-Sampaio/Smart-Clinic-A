@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
@@ -29,11 +31,18 @@ session_start();
                 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/MedicoController.php';
                 $controller = new ReceitaController();
                 $pacienteController = new PacienteController();
+                $action = isset($_GET['action']) ? $_GET['action'] : 'list';
+                $isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+                $pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+
+                if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+                    header('Location: receita.php');
+                    exit;
+                }
                 $medicoController = new MedicoController();
                 $pacientes = $pacienteController->getAll();
                 $medicos = $medicoController->getAll();
 
-                $action = isset($_GET['action']) ? $_GET['action'] : 'list';
                 $receita = null;
 
                 if ($action == 'edit' && isset($_GET['id'])) {
@@ -45,6 +54,10 @@ session_start();
                 }
 
                 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                    if ($isPaciente) {
+                        header('Location: receita.php');
+                        exit;
+                    }
                     if (isset($_POST['delete_id'])) {
                         $controller->delete($_POST['delete_id']);
                         header('Location: receita.php');
@@ -95,7 +108,11 @@ session_start();
                             </thead>
                             <tbody>
                                 <?php
-                                $receitas = $controller->getAll();
+                                if ($isPaciente && !empty($pacienteLogadoCod)) {
+                                    $receitas = $controller->getByPaciente($pacienteLogadoCod);
+                                } else {
+                                    $receitas = $controller->getAll();
+                                }
                                 foreach ($receitas as $rec) {
                                     echo "<tr>";
                                     echo "<td>" . htmlspecialchars($rec['cod']) . "</td>";
@@ -122,49 +139,60 @@ session_start();
                 } elseif ($action == 'create' || $action == 'edit') {
                     $title = $action == 'create' ? 'Adicionar Nova Receita' : 'Editar Receita';
                     ?>
-                    <h2 class="text-azul fw-bold mb-4"><?php echo $title; ?></h2>
-                    
-                    <form method="POST" action="">
-                        <?php if ($action == 'edit') { ?>
-                            <input type="hidden" name="cod" value="<?php echo htmlspecialchars($receita['cod']); ?>">
-                        <?php } ?>
-                        <div class="row gy-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="fk_paciente_cod" class="form-label">Paciente</label>
-                                <select class="form-control" id="fk_paciente_cod" name="fk_paciente_cod" required>
-                                    <?php foreach ($pacientes as $pac) { 
-                                        $selected = ($action == 'edit' && $pac['cod'] == $receita['fk_paciente_cod']) ? 'selected' : '';
-                                        ?>
-                                        <option value="<?php echo htmlspecialchars($pac['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($pac['nome']); ?></option>
-                                    <?php } ?>
-                                </select>
+                    <div class="card-modern">
+                        <h2 class="title mb-3"><?php echo $title; ?></h2>
+                        <p class="text-muted mb-4"><?php echo $action == 'create' ? 'Preencha os dados para criar uma receita.' : 'Atualize os dados da receita.'; ?></p>
+
+                        <form method="POST" action="">
+                            <?php if ($action == 'edit') { ?>
+                                <input type="hidden" name="cod" value="<?php echo htmlspecialchars($receita['cod']); ?>">
+                            <?php } ?>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="fk_paciente_cod" class="form-label">Paciente</label>
+                                    <select class="form-control form-control-lg" id="fk_paciente_cod" name="fk_paciente_cod" required <?php echo $isPaciente ? 'disabled' : ''; ?> >
+                                        <?php foreach ($pacientes as $pac) { 
+                                            $selected = ($action == 'edit' && $pac['cod'] == ($receita['fk_paciente_cod'] ?? '')) ? 'selected' : '';
+                                            ?>
+                                            <option value="<?php echo htmlspecialchars($pac['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($pac['nome']); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <?php if ($isPaciente): ?>
+                                        <input type="hidden" name="fk_paciente_cod" value="<?php echo htmlspecialchars($receita['fk_paciente_cod'] ?? $pacienteLogadoCod); ?>">
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fk_medico_cod" class="form-label">Médico</label>
+                                    <select class="form-control form-control-lg" id="fk_medico_cod" name="fk_medico_cod" required>
+                                        <?php foreach ($medicos as $med) { 
+                                            $selected = ($action == 'edit' && $med['cod'] == ($receita['fk_medico_cod'] ?? '')) ? 'selected' : '';
+                                            ?>
+                                            <option value="<?php echo htmlspecialchars($med['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($med['nome']); ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="fk_medico_cod" class="form-label">Médico</label>
-                                <select class="form-control" id="fk_medico_cod" name="fk_medico_cod" required>
-                                    <?php foreach ($medicos as $med) { 
-                                        $selected = ($action == 'edit' && $med['cod'] == $receita['fk_medico_cod']) ? 'selected' : '';
-                                        ?>
-                                        <option value="<?php echo htmlspecialchars($med['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($med['nome']); ?></option>
-                                    <?php } ?>
-                                </select>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <label for="data_receita" class="form-label">Data Receita</label>
+                                    <input type="date" class="form-control form-control-lg" id="data_receita" name="data_receita" value="<?php echo $action == 'edit' ? htmlspecialchars($receita['data_receita']) : ''; ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="tipo" class="form-label">Tipo</label>
+                                    <input type="text" class="form-control form-control-lg" id="tipo" name="tipo" value="<?php echo $action == 'edit' ? htmlspecialchars($receita['tipo']) : ''; ?>" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row gy-3 mb-3">
-                            <div class="col-md-6">
-                                <label for="data_receita" class="form-label">Data Receita</label>
-                                <input type="date" class="form-control" id="data_receita" name="data_receita" value="<?php echo $action == 'edit' ? htmlspecialchars($receita['data_receita']) : ''; ?>" required>
+
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="submit" class="btn btn-verde btn-lg"><i class="bi bi-check-lg"></i> Salvar</button>
+                                <a href="receita.php" class="btn btn-secondary btn-lg">Cancelar</a>
                             </div>
-                            <div class="col-md-6">
-                                <label for="tipo" class="form-label">Tipo</label>
-                                <input type="text" class="form-control" id="tipo" name="tipo" value="<?php echo $action == 'edit' ? htmlspecialchars($receita['tipo']) : ''; ?>" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-verde">Salvar</button>
-                        <a href="receita.php" class="btn btn-secondary">Cancelar</a>
-                    </form>
-                    <?php
-                }
+                        </form>
+                    </div>
+                <?php }
                 ?>
             </div>
         </div>

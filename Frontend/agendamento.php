@@ -1,4 +1,18 @@
-<?php require_once __DIR__ . '/navbar.php'; ?>
+<?php 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+ob_start();
+require_once __DIR__ . '/navbar.php'; 
+
+// === AJUSTE AQUI CONFORME SEU LOGIN ===
+// Compatibilidade de sessão para paciente logado
+$isPaciente = (isset($_SESSION['role']) && $_SESSION['role'] === 'paciente')
+    || (isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] === 'paciente');
+$pacienteLogadoCod = $_SESSION['user_id'] ?? $_SESSION['paciente_cod'] ?? null;
+$pacienteLogadoNome = $_SESSION['user_name'] ?? null;
+// ======================================
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -86,10 +100,12 @@
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/AgendamentoController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/SolicitacaoController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
+
 $controller = new AgendamentoController();
-$solicitacaoController = new SolicitacaoController();
-$solicitacoes = $solicitacaoController->getAll();
+$pacienteController = new PacienteController();
+
+$pacientes = $pacienteController->getAll();
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';
 $agendamento = null;
@@ -100,25 +116,58 @@ if ($action == 'edit' && isset($_GET['id'])) {
         echo "<p>Agendamento não encontrado.</p>";
         exit;
     }
+    if ($isPaciente && !empty($pacienteLogadoCod) && $agendamento['fk_paciente_cod'] != $pacienteLogadoCod) {
+        header('Location: agendamento.php');
+        exit;
+    }
 }
 
+// Lógica de proteção e criação de agendamentos
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($isPaciente) {
+        // Paciente só pode criar agendamentos para si mesmo
+        if ($action == 'create') {
+            $data = [
+                'fk_solicitacao_cod' => null,
+                'fk_paciente_cod' => $pacienteLogadoCod,
+                'motivo' => $_POST['motivo'] ?? null,
+                'data_agendamento' => $_POST['data_agendamento'],
+                'data_consulta' => $_POST['data_agendamento'],
+                'sintese' => $_POST['sintese'] ?? null
+            ];
+            $controller->create($data);
+            header('Location: agendamento.php');
+            exit;
+        }
+        // Pacientes não podem editar ou deletar agendamentos pelo formulário direto
+        header('Location: agendamento.php');
+        exit;
+    }
+
     if (isset($_POST['delete_id'])) {
         $controller->delete($_POST['delete_id']);
         header('Location: agendamento.php');
         exit;
     } elseif ($action == 'create') {
         $data = [
-            'fk_solicitacao_cod' => $_POST['fk_solicitacao_cod'],
-            'data_agendamento' => $_POST['data_agendamento']
+            'fk_solicitacao_cod' => null,
+            'fk_paciente_cod' => $_POST['fk_paciente_cod'],
+            'motivo' => $_POST['motivo'] ?? null,
+            'data_agendamento' => $_POST['data_agendamento'],
+            'data_consulta' => $_POST['data_agendamento'],
+            'sintese' => $_POST['sintese'] ?? null
         ];
         $controller->create($data);
         header('Location: agendamento.php');
         exit;
     } elseif ($action == 'edit' && isset($_POST['cod'])) {
         $data = [
-            'fk_solicitacao_cod' => $_POST['fk_solicitacao_cod'],
-            'data_agendamento' => $_POST['data_agendamento']
+            'fk_solicitacao_cod' => null,
+            'fk_paciente_cod' => $_POST['fk_paciente_cod'],
+            'motivo' => $_POST['motivo'] ?? null,
+            'data_agendamento' => $_POST['data_agendamento'],
+            'data_consulta' => $_POST['data_agendamento'],
+            'sintese' => $_POST['sintese'] ?? null
         ];
         $controller->update($_POST['cod'], $data);
         header('Location: agendamento.php');
@@ -136,7 +185,7 @@ if ($action == 'list') {
         </div>
         <div>
             <h2 class="title mb-1">Lista de Agendamentos</h2>
-            <p class="text-muted mb-0">Gerencie os agendamentos cadastrados no sistema</p>
+            <p class="text-muted mb-0"><?= $isPaciente ? 'Aqui estão seus agendamentos' : 'Gerencie os agendamentos cadastrados no sistema' ?></p>
         </div>
     </div>
 
@@ -151,31 +200,55 @@ if ($action == 'list') {
 <thead style="background: #f1f5f9;">
 <tr>
     <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">CÓDIGO</th>
-    <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">SOLICITAÇÃO</th>
+    <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">PACIENTE</th>
+    <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">MOTIVO</th>
     <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">DATA AGENDAMENTO</th>
+    <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">SÍNTESE</th>
+    <?php if (!$isPaciente) { ?>
     <th style="padding: 15px; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase;">AÇÕES</th>
+    <?php } ?>
 </tr>
 </thead>
 
 <tbody>
 <?php
-$agendamentos = $controller->getAll();
+// === FILTRO APLICADO AQUI ===
+// Se o usuário logado for de fato um paciente, filtramos pelo código dele
+if ($isPaciente && !empty($pacienteLogadoCod)) {
+    $agendamentos = $controller->getByPaciente($pacienteLogadoCod);
+} else {
+    // Caso seja admin/médico ou a sessão não esteja preenchida, mostra tudo
+    $agendamentos = $controller->getAll();
+}
+
+if (empty($agendamentos)) {
+    echo "<tr><td colspan='6' class='text-center py-4 text-muted'>Nenhum agendamento encontrado.</td></tr>";
+}
+
 foreach ($agendamentos as $ag) {
+    $sintese = isset($ag['sintese']) ? substr($ag['sintese'], 0, 50) . (strlen($ag['sintese']) > 50 ? '...' : '') : '-';
+    $motivo = isset($ag['motivo']) ? substr($ag['motivo'], 0, 50) . (strlen($ag['motivo']) > 50 ? '...' : '') : '-';
     echo "<tr style='border-bottom: 1px solid #e2e8f0;'>";
     echo "<td style='padding: 15px; color: #0f172a; font-weight: 500;'>{$ag['cod']}</td>";
-    echo "<td style='padding: 15px; color: #0f172a;'>{$ag['solicitacao_tipo']} - {$ag['solicitacao_motivo']}</td>";
-    echo "<td style='padding: 15px; color: #0f172a;'><i class='bi bi-calendar' style='color: var(--azul); margin-right: 8px;'></i>{$ag['data_agendamento']}</td>";
-    echo "<td style='padding: 15px;'>
-        <a href='?action=edit&id={$ag['cod']}' class='btn btn-sm me-2' style='background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
-            <i class='bi bi-pencil' style='font-size: 14px;'></i> Editar
-        </a>
-        <form method='POST' style='display:inline;'>
-            <input type='hidden' name='delete_id' value='{$ag['cod']}'>
-            <button class='btn btn-sm' style='background: #ef4444; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
-                <i class='bi bi-trash' style='font-size: 14px;'></i> Deletar
-            </button>
-        </form>
-    </td>";
+    echo "<td style='padding: 15px; color: #0f172a;'><strong>{$ag['paciente_nome']}</strong> (Cód: {$ag['fk_paciente_cod']})</td>";
+    echo "<td style='padding: 15px; color: #0f172a; font-size: 13px;'>{$motivo}</td>";
+    echo "<td style='padding: 15px; color: #0f172a;'><i class='bi bi-calendar' style='color: var(--azul); margin-right: 8px;'></i>" . date('d/m/Y H:i', strtotime($ag['data_consulta'])) . "</td>";
+    echo "<td style='padding: 15px; color: #0f172a; font-size: 13px;'>{$sintese}</td>";
+    
+    // Esconde as ações de editar/deletar se for paciente
+    if (!$isPaciente) {
+        echo "<td style='padding: 15px;'>
+            <a href='?action=edit&id={$ag['cod']}' class='btn btn-sm me-2' style='background: #3b82f6; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
+                <i class='bi bi-pencil' style='font-size: 14px;'></i> Editar
+            </a>
+            <form method='POST' style='display:inline;'>
+                <input type='hidden' name='delete_id' value='{$ag['cod']}'>
+                <button class='btn btn-sm' style='background: #ef4444; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
+                    <i class='bi bi-trash' style='font-size: 14px;'></i> Deletar
+                </button>
+            </form>
+        </td>";
+    }
     echo "</tr>";
 }
 ?>
@@ -184,7 +257,13 @@ foreach ($agendamentos as $ag) {
 </div>
 </div>
 
-<?php } else { ?>
+<?php } else { 
+    // Proteção de Rota: pacientes não podem acessar o formulário de edição
+    if ($isPaciente && $action == 'edit') {
+        header('Location: agendamento.php');
+        exit;
+    }
+?>
 
 <div class="card-modern">
 <h2 class="title mb-4"><?= $action == 'create' ? 'Novo Agendamento' : 'Editar Agendamento' ?></h2>
@@ -196,17 +275,35 @@ foreach ($agendamentos as $ag) {
 <?php } ?>
 
 <div class="mb-3">
-    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Solicitação</label>
-    <select name="fk_solicitacao_cod" class="form-control" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
-    <?php foreach ($solicitacoes as $sol) { ?>
-    <option value="<?= $sol['cod'] ?>"><?= $sol['tipo'] ?> - <?= $sol['motivo'] ?></option>
+    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Paciente</label>
+    <?php if ($isPaciente) { ?>
+        <input type="hidden" name="fk_paciente_cod" value="<?= htmlspecialchars($pacienteLogadoCod) ?>">
+        <div class="form-control" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px; background: #f8fafc;" readonly>
+            <?= htmlspecialchars($pacienteLogadoNome ?? 'Paciente logado') ?> (Cód: <?= htmlspecialchars($pacienteLogadoCod) ?>)
+        </div>
+    <?php } else { ?>
+        <select name="fk_paciente_cod" class="form-control" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;" required>
+            <option value="">-- Selecione um Paciente --</option>
+            <?php foreach ($pacientes as $pac) { ?>
+            <option value="<?= $pac['cod'] ?>" <?= $action == 'edit' && $agendamento['fk_paciente_cod'] == $pac['cod'] ? 'selected' : '' ?>><?= $pac['nome'] ?> (Cód: <?= $pac['cod'] ?>)</option>
+            <?php } ?>
+        </select>
     <?php } ?>
-    </select>
+</div>
+
+<div class="mb-3">
+    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Motivo</label>
+    <input type="text" name="motivo" class="form-control" placeholder="Digite o motivo da consulta..." value="<?= $action == 'edit' ? htmlspecialchars($agendamento['motivo'] ?? '') : '' ?>" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;" required>
 </div>
 
 <div class="mb-4">
     <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Data do Agendamento</label>
-    <input class="form-control" type="datetime-local" name="data_agendamento" value="<?= $action == 'edit' ? date('Y-m-d\TH:i', strtotime($agendamento['data_agendamento'])) : '' ?>" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;">
+    <input class="form-control" type="datetime-local" name="data_agendamento" value="<?= $action == 'edit' ? date('Y-m-d\TH:i', strtotime($agendamento['data_agendamento'] ?? $agendamento['data_consulta'])) : '' ?>" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;" required>
+</div>
+
+<div class="mb-4">
+    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Síntese da Consulta</label>
+    <textarea class="form-control" name="sintese" rows="4" placeholder="Digite a síntese ou observações da consulta..." style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;"><?= $action == 'edit' ? htmlspecialchars($agendamento['sintese'] ?? '') : '' ?></textarea>
 </div>
 
 <div class="d-flex gap-2">
@@ -233,5 +330,6 @@ foreach ($agendamentos as $ag) {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<?php ob_end_flush(); ?>
 </body>
 </html>

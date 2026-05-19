@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
@@ -89,7 +91,13 @@ session_start();
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PrescreverController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/ReceitaController.php';
+$require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/MedicamentoController.php';
 $controller = new PrescreverController();
+$receitaController = new ReceitaController();
+$medicamentoController = new MedicamentoController();
+$isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+$pacienteLogadoCod = $_SESSION['user_id'] ?? null;
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';
 $prescrever = null;
@@ -103,6 +111,10 @@ if ($action == 'edit' && isset($_GET['id1']) && isset($_GET['id2'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($isPaciente) {
+        header('Location: prescrever.php');
+        exit;
+    }
     if (isset($_POST['delete_id1']) && isset($_POST['delete_id2'])) {
         $controller->delete($_POST['delete_id1'], $_POST['delete_id2']);
         header('Location: prescrever.php');
@@ -126,6 +138,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: prescrever.php');
         exit;
     }
+}
+
+if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+    header('Location: prescrever.php');
+    exit;
 }
 
 if ($action == 'list') {
@@ -165,6 +182,12 @@ if ($action == 'list') {
 <tbody>
 <?php
 $prescrivers = $controller->getAll();
+if ($isPaciente && !empty($pacienteLogadoCod)) {
+    $minhasReceitas = array_column($receitaController->getByPaciente($pacienteLogadoCod), 'cod');
+    $prescrivers = array_filter($prescrivers, function($pres) use ($minhasReceitas) {
+        return in_array($pres['fk_receita_cod'], $minhasReceitas);
+    });
+}
 foreach ($prescrivers as $pres) {
     echo "<tr style='border-bottom: 1px solid #e2e8f0;'>";
     echo "<td style='padding: 15px; color: #0f172a; font-weight: 500;'>{$pres['fk_receita_cod']}</td>";
@@ -205,35 +228,45 @@ foreach ($prescrivers as $pres) {
 <input type="hidden" name="fk_medicamento_cod" value="<?= $prescrever['fk_medicamento_cod'] ?>">
 <?php } ?>
 
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Código da Receita</label>
-        <input class="form-control" name="fk_receita_cod" value="<?= $action == 'edit' ? $prescrever['fk_receita_cod'] : '' ?>" placeholder="Código da receita" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;" <?= $action == 'edit' ? 'readonly' : '' ?>>
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Receita</label>
+        <select name="fk_receita_cod" class="form-control form-control-lg" <?= $action == 'edit' ? 'disabled' : '' ?> required>
+            <option value="">Selecione uma receita</option>
+            <?php $receitas = $receitaController->getAll(); foreach ($receitas as $r) {
+                $sel = ($action == 'edit' && $r['cod'] == ($prescrever['fk_receita_cod'] ?? '')) ? 'selected' : '';
+                echo "<option value='" . htmlspecialchars($r['cod']) . "' $sel>" . htmlspecialchars($r['cod'] . ' - ' . ($r['paciente_nome'] ?? '')) . "</option>";
+            } ?>
+        </select>
+        <?php if ($action == 'edit'): ?><input type="hidden" name="fk_receita_cod" value="<?= $prescrever['fk_receita_cod'] ?>"><?php endif; ?>
     </div>
 
-    <div class="col-md-6 mb-3">
-        <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Código do Medicamento</label>
-        <input class="form-control" name="fk_medicamento_cod" value="<?= $action == 'edit' ? $prescrever['fk_medicamento_cod'] : '' ?>" placeholder="Código do medicamento" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;" <?= $action == 'edit' ? 'readonly' : '' ?>>
+    <div class="col-md-6">
+        <label class="form-label">Medicamento</label>
+        <select name="fk_medicamento_cod" class="form-control form-control-lg" <?= $action == 'edit' ? 'disabled' : '' ?> required>
+            <option value="">Selecione um medicamento</option>
+            <?php $meds = $medicamentoController->getAll(); foreach ($meds as $m) {
+                $sel = ($action == 'edit' && $m['cod'] == ($prescrever['fk_medicamento_cod'] ?? '')) ? 'selected' : '';
+                echo "<option value='" . htmlspecialchars($m['cod']) . "' $sel>" . htmlspecialchars($m['nome']) . "</option>";
+            } ?>
+        </select>
+        <?php if ($action == 'edit'): ?><input type="hidden" name="fk_medicamento_cod" value="<?= $prescrever['fk_medicamento_cod'] ?>"><?php endif; ?>
     </div>
 </div>
 
-<div class="mb-4">
-    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Descrição</label>
-    <textarea class="form-control" name="descricao" placeholder="Descrição da prescrição..." rows="3" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;"><?= $action == 'edit' ? $prescrever['descricao'] : '' ?></textarea>
+<div class="mb-3 mt-3">
+    <label class="form-label">Descrição</label>
+    <textarea class="form-control" name="descricao" rows="3"><?php echo $action == 'edit' ? htmlspecialchars($prescrever['descricao']) : ''; ?></textarea>
 </div>
 
-<div class="mb-4">
-    <label style="color: #475569; font-weight: 500; margin-bottom: 8px; display: block;">Modo Uso</label>
-    <textarea class="form-control" name="modo_uso" placeholder="Modo de uso do medicamento..." rows="3" style="border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px;"><?= $action == 'edit' ? $prescrever['modo_uso'] : '' ?></textarea>
+<div class="mb-3">
+    <label class="form-label">Modo Uso</label>
+    <textarea class="form-control" name="modo_uso" rows="3"><?php echo $action == 'edit' ? htmlspecialchars($prescrever['modo_uso']) : ''; ?></textarea>
 </div>
 
-<div class="d-flex gap-2">
-    <button type="submit" class="btn btn-verde">
-        <i class="bi bi-check-lg"></i> Salvar
-    </button>
-    <a href="prescrever.php" class="btn btn-secondary" style="border-radius: 8px; padding: 10px 18px;">
-        <i class="bi bi-x-lg"></i> Cancelar
-    </a>
+<div class="d-flex gap-2 mt-3">
+    <button type="submit" class="btn btn-verde btn-lg"><i class="bi bi-check-lg"></i> Salvar</button>
+    <a href="prescrever.php" class="btn btn-secondary btn-lg">Cancelar</a>
 </div>
 
 </form>

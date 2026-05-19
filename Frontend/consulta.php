@@ -1,4 +1,10 @@
-<?php require_once __DIR__ . '/navbar.php'; ?>
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+ob_start();
+require_once __DIR__ . '/navbar.php'; 
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -84,9 +90,14 @@
 
 <?php
 require_once '../Backend/controller/ConsultaController.php';
+require_once '../Backend/controller/AgendamentoController.php';
 $controller = new ConsultaController();
+$agendamentoController = new AgendamentoController();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_id'])) {
+$isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+$pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_id']) && !$isPaciente) {
     $controller->delete($_POST['delete_id']);
     header('Location: consulta.php');
     exit;
@@ -120,21 +131,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_id'])) {
 
 <tbody>
 <?php
-$consultas = $controller->getAll();
+if ($isPaciente && !empty($pacienteLogadoCod)) {
+    $consultas = $agendamentoController->getByPaciente($pacienteLogadoCod);
+} else {
+    $consultas = $controller->getAll();
+}
 foreach ($consultas as $consulta) {
     echo "<tr style='border-bottom: 1px solid #e2e8f0;'>";
     echo "<td style='padding: 15px; color: #0f172a; font-weight: 500;'>{$consulta['cod']}</td>";
     echo "<td style='padding: 15px; color: #0f172a;'>{$consulta['fk_agendamento_cod']}</td>";
     echo "<td style='padding: 15px; color: #0f172a;'>{$consulta['data_consulta']}</td>";
     echo "<td style='padding: 15px; color: #0f172a;'>{$consulta['sintese']}</td>";
-    echo "<td style='padding: 15px;'>
-        <form method='POST' style='display:inline;'>
+    echo "<td style='padding: 15px;'>";
+    if (!$isPaciente) {
+        echo "<form method='POST' style='display:inline;'>
             <input type='hidden' name='delete_id' value='{$consulta['cod']}'>
             <button class='btn btn-sm' style='background: #ef4444; color: white; border: none; border-radius: 6px; padding: 6px 12px;'>
                 <i class='bi bi-trash' style='font-size: 14px;'></i> Deletar
             </button>
-        </form>
-    </td>";
+        </form>";
+    }
+    echo "</td>";
     echo "</tr>";
 }
 ?>
@@ -153,6 +170,7 @@ foreach ($consultas as $consulta) {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<?php ob_end_flush(); ?>
 </body>
 </html>
 

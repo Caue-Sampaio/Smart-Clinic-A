@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
@@ -28,6 +30,8 @@ session_start();
             $controller = new ExameController();
             $solicitacaoController = new SolicitacaoController();
             $solicitacoes = $solicitacaoController->getAll();
+            $isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+            $pacienteLogadoCod = $_SESSION['user_id'] ?? null;
 
             $action = isset($_GET['action']) ? $_GET['action'] : 'list';
             $exame = null;
@@ -41,6 +45,10 @@ session_start();
             }
 
             if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                if ($isPaciente) {
+                    header('Location: exame.php');
+                    exit;
+                }
                 if (isset($_POST['delete_id'])) {
                     $controller->delete($_POST['delete_id']);
                     header('Location: exame.php');
@@ -64,6 +72,11 @@ session_start();
                 }
             }
 
+            if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+                header('Location: exame.php');
+                exit;
+            }
+
             if ($action == 'list') {
                 ?>
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -85,7 +98,11 @@ session_start();
                         </thead>
                         <tbody>
                             <?php
-                            $exames = $controller->getAll();
+                            if ($isPaciente && !empty($pacienteLogadoCod)) {
+                                $exames = $controller->getByPaciente($pacienteLogadoCod);
+                            } else {
+                                $exames = $controller->getAll();
+                            }
                             foreach ($exames as $ex) {
                                 echo "<tr>";
                                 echo "<td>" . htmlspecialchars($ex['cod']) . "</td>";
@@ -110,30 +127,40 @@ session_start();
             } elseif ($action == 'create' || $action == 'edit') {
                 $title = $action == 'create' ? 'Adicionar Novo Exame' : 'Editar Exame';
                 ?>
-                <h2 class="text-azul fw-bold mb-4"><?php echo $title; ?></h2>
-                
-                <form method="POST" action="">
-                    <?php if ($action == 'edit') { ?>
-                        <input type="hidden" name="cod" value="<?php echo htmlspecialchars($exame['cod']); ?>">
-                    <?php } ?>
-                    <div class="mb-3">
-                        <label for="fk_solicitacao_cod" class="form-label">Solicitação</label>
-                        <select class="form-control" id="fk_solicitacao_cod" name="fk_solicitacao_cod" required>
-                            <option value="">Selecione uma solicitação</option>
-                            <?php foreach ($solicitacoes as $sol) { 
-                                $selected = ($action == 'edit' && $sol['cod'] == $exame['fk_solicitacao_cod']) ? 'selected' : '';
-                                ?>
-                                <option value="<?php echo htmlspecialchars($sol['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($sol['tipo'] . ' - ' . $sol['motivo']); ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="arquivo" class="form-label">Arquivo</label>
-                        <input type="text" class="form-control" id="arquivo" name="arquivo" value="<?php echo $action == 'edit' ? htmlspecialchars($exame['arquivo']) : ''; ?>" placeholder="Caminho ou nome do arquivo">
-                    </div>
-                    <button type="submit" class="btn btn-verde">Salvar</button>
-                    <a href="exame.php" class="btn btn-secondary">Cancelar</a>
-                </form>
+                <div class="card-modern">
+                    <h2 class="title mb-3"><?php echo $title; ?></h2>
+                    <p class="text-muted mb-4"><?php echo $action == 'create' ? 'Associe um arquivo à solicitação.' : 'Atualize os dados do exame.'; ?></p>
+
+                    <form method="POST" action="">
+                        <?php if ($action == 'edit') { ?>
+                            <input type="hidden" name="cod" value="<?php echo htmlspecialchars($exame['cod']); ?>">
+                        <?php } ?>
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label for="fk_solicitacao_cod" class="form-label">Solicitação</label>
+                                <select class="form-control form-control-lg" id="fk_solicitacao_cod" name="fk_solicitacao_cod" required>
+                                    <option value="">Selecione uma solicitação</option>
+                                    <?php foreach ($solicitacoes as $sol) {
+                                        $selected = ($action == 'edit' && $sol['cod'] == ($exame['fk_solicitacao_cod'] ?? '')) ? 'selected' : '';
+                                    ?>
+                                    <option value="<?php echo htmlspecialchars($sol['cod']); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($sol['tipo'] . ' - ' . $sol['motivo']); ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="arquivo" class="form-label">Arquivo</label>
+                                <input type="text" class="form-control form-control-lg" id="arquivo" name="arquivo" value="<?php echo $action == 'edit' ? htmlspecialchars($exame['arquivo']) : ''; ?>" placeholder="Caminho ou nome do arquivo">
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-verde btn-lg"><i class="bi bi-check-lg"></i> Salvar</button>
+                            <a href="exame.php" class="btn btn-secondary btn-lg">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
                 <?php
             }
             ?>

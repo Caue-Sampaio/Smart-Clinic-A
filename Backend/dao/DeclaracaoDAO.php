@@ -7,6 +7,12 @@ class DeclaracaoDAO extends BaseDAO {
         return $stmt->fetchAll();
     }
 
+    public function getByPaciente($pacienteCod) {
+        $stmt = $this->db->prepare('SELECT d.*, p.nome as paciente_nome, m.nome as medico_nome FROM declaracao d LEFT JOIN paciente p ON d.fk_paciente_cod = p.cod LEFT JOIN medico m ON d.fk_medico_cod = m.cod WHERE d.fk_paciente_cod = ?');
+        $stmt->execute([$pacienteCod]);
+        return $stmt->fetchAll();
+    }
+
     public function getById($cod) {
         $stmt = $this->db->prepare('SELECT * FROM declaracao WHERE cod = ?');
         $stmt->execute([$cod]);
