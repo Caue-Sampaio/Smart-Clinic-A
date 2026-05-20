@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title>Avatar padrão</title>
+  <rect width="200" height="200" rx="40" ry="40" fill="#d1d5db" />
+  <circle cx="100" cy="70" r="38" fill="#9ca3af" />
+  <path d="M53 158c0-30.5 24.5-55 54.5-55s54.5 24.5 54.5 55" fill="#9ca3af" />
+</svg>

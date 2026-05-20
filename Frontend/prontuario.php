@@ -2,8 +2,121 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+function normalizaFotoPath(string $path = null): string {
+    $defaultPath = '/SmartClinic-A/img/default-avatar.svg';
+
+    if (empty($path)) {
+        return $defaultPath;
+    }
+
+    if (preg_match('#^(https?://|/)#i', $path)) {
+        return $path;
+    }
+
+    return '/SmartClinic-A/' . ltrim($path, '/\\');
+}
+
+require_once __DIR__ . '/navbar.php';
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/ProntuarioController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
+
+$controller = new ProntuarioController();
+$pacienteController = new PacienteController();
+$pacientes = $pacienteController->getAll();
+$isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+$pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+$pacienteLogadoCpf = null;
+if ($isPaciente && !empty($pacienteLogadoCod)) {
+    $pacienteAtual = $pacienteController->getById($pacienteLogadoCod);
+    $pacienteLogadoCpf = $pacienteAtual['cpf'] ?? null;
+}
+
+$action = isset($_GET['action']) ? $_GET['action'] : 'list';
+$prontuario = null;
+
+if ($action == 'edit' && isset($_GET['id'])) {
+    $prontuario = $controller->getById($_GET['id']);
+    if (!$prontuario) {
+        echo "<p>Prontuário não encontrado.</p>";
+        exit;
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['delete_id']) && !$isPaciente) {
+        $controller->delete($_POST['delete_id']);
+        header('Location: prontuario.php');
+        exit;
+    } elseif ($action == 'create' && !$isPaciente) {
+        $foto_to_store = null;
+        if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
+            $res = pegaImagem($_FILES['foto']);
+            if ($res['success']) {
+                $foto_to_store = $res['path'];
+            } else {
+                $foto_to_store = $_POST['existing_foto'] ?? null;
+            }
+        } else {
+            $foto_to_store = $_POST['existing_foto'] ?? ($_POST['foto'] ?? null);
+        }
+
+        if (empty($foto_to_store)) {
+            $foto_to_store = '/SmartClinic-A/img/default-avatar.svg';
+        }
+
+        $data = [
+            'fk_paciente_cpf' => $_POST['fk_paciente_cpf'] ?? '',
+            'foto' => $foto_to_store,
+            'tipo_sanguineo' => $_POST['tipo_sanguineo'] ?? '',
+            'doencas_cronicas' => $_POST['doencas_cronicas'] ?? '',
+            'doencas_geneticas' => $_POST['doencas_geneticas'] ?? '',
+            'doencas_autoimunes' => $_POST['doencas_autoimunes'] ?? '',
+            'outros' => $_POST['outros'] ?? ''
+        ];
+        $controller->create($data);
+        header('Location: prontuario.php');
+        exit;
+    } elseif ($action == 'edit' && isset($_POST['cod'])) {
+        $foto_to_store = null;
+        if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
+            $res = pegaImagem($_FILES['foto']);
+            if ($res['success']) {
+                $foto_to_store = $res['path'];
+            } else {
+                $foto_to_store = $_POST['existing_foto'] ?? null;
+            }
+        } else {
+            $foto_to_store = $_POST['existing_foto'] ?? ($_POST['foto'] ?? null);
+        }
+
+        if (empty($foto_to_store)) {
+            $foto_to_store = '/SmartClinic-A/img/default-avatar.svg';
+        }
+
+        $data = [
+            'fk_paciente_cpf' => $_POST['fk_paciente_cpf'] ?? '',
+            'foto' => $foto_to_store,
+            'tipo_sanguineo' => $_POST['tipo_sanguineo'] ?? '',
+            'doencas_cronicas' => $_POST['doencas_cronicas'] ?? '',
+            'doencas_geneticas' => $_POST['doencas_geneticas'] ?? '',
+            'doencas_autoimunes' => $_POST['doencas_autoimunes'] ?? '',
+            'outros' => $_POST['outros'] ?? ''
+        ];
+        $controller->update($_POST['cod'], $data);
+        header('Location: prontuario.php');
+        exit;
+    }
+}
+
+if ($isPaciente && ($action == 'create' || $action == 'edit')) {
+    header('Location: prontuario.php');
+    exit;
+}
 ?>
-<?php require_once __DIR__ . '/navbar.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -64,14 +177,47 @@ if (session_status() === PHP_SESSION_NONE) {
             box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
         }
 
+        .table-modern {
+            table-layout: fixed;
+            width: 100%;
+        }
         .table-modern thead {
             background: #f1f5f9;
         }
-        .table-modern th {
+        .table-modern th,
+        .table-modern td {
             color: #475569;
+            white-space: nowrap;
+        }
+        .table-modern td,
+        .table-modern th {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .table-modern td.actions-col,
+        .table-modern th.actions-col {
+            width: 130px;
+            max-width: 130px;
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
         }
         .table-modern tr:hover {
             background: #eef2ff;
+        }
+        .table-modern th.foto-col,
+        .table-modern td.foto-col {
+            width: 70px;
+            max-width: 70px;
+            text-align: center;
+        }
+        .table-modern td.foto-col img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto;
         }
 
         footer {
@@ -89,98 +235,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <section class="py-5 bg-light">
         <div class="container py-4">
             <?php
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/ProntuarioController.php';
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
-            $controller = new ProntuarioController();
-            $pacienteController = new PacienteController();
-            $pacientes = $pacienteController->getAll();
-            $isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
-            $pacienteLogadoCod = $_SESSION['user_id'] ?? null;
-            $pacienteLogadoCpf = null;
-            if ($isPaciente && !empty($pacienteLogadoCod)) {
-                $pacienteAtual = $pacienteController->getById($pacienteLogadoCod);
-                $pacienteLogadoCpf = $pacienteAtual['cpf'] ?? null;
-            }
-
-            $action = isset($_GET['action']) ? $_GET['action'] : 'list';
-            $prontuario = null;
-
-            if ($action == 'edit' && isset($_GET['id'])) {
-                $prontuario = $controller->getById($_GET['id']);
-                if (!$prontuario) {
-                    echo "<p>Prontuário não encontrado.</p>";
-                    exit;
-                }
-            }
-
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                if (isset($_POST['delete_id']) && !$isPaciente) {
-                    $controller->delete($_POST['delete_id']);
-                    header('Location: prontuario.php');
-                    exit;
-                } elseif ($action == 'create' && !$isPaciente) {
-                    // processar upload de imagem (se houver)
-                    $foto_to_store = null;
-                    if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
-                        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
-                        $res = pegaImagem($_FILES['foto']);
-                        if ($res['success']) {
-                            $foto_to_store = 'img/uploads/' . $res['filename'];
-                        } else {
-                            // fallback para valor existente ou nulo
-                            $foto_to_store = $_POST['existing_foto'] ?? null;
-                        }
-                    } else {
-                        $foto_to_store = $_POST['existing_foto'] ?? ($_POST['foto'] ?? null);
-                    }
-
-                    $data = [
-                        'fk_paciente_cpf' => $_POST['fk_paciente_cpf'],
-                        'foto' => $foto_to_store,
-                        'tipo_sanguineo' => $_POST['tipo_sanguineo'],
-                        'doencas_cronicas' => $_POST['doencas_cronicas'],
-                        'doencas_geneticas' => $_POST['doencas_geneticas'],
-                        'doencas_autoimunes' => $_POST['doencas_autoimunes'],
-                        'outros' => $_POST['outros']
-                    ];
-                    $controller->create($data);
-                    header('Location: prontuario.php');
-                    exit;
-                } elseif ($action == 'edit' && isset($_POST['cod'])) {
-                    // processar upload de imagem (se houver)
-                    $foto_to_store = null;
-                    if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
-                        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
-                        $res = pegaImagem($_FILES['foto']);
-                        if ($res['success']) {
-                            $foto_to_store = 'img/uploads/' . $res['filename'];
-                        } else {
-                            $foto_to_store = $_POST['existing_foto'] ?? null;
-                        }
-                    } else {
-                        $foto_to_store = $_POST['existing_foto'] ?? ($_POST['foto'] ?? null);
-                    }
-
-                    $data = [
-                        'fk_paciente_cpf' => $_POST['fk_paciente_cpf'],
-                        'foto' => $foto_to_store,
-                        'tipo_sanguineo' => $_POST['tipo_sanguineo'],
-                        'doencas_cronicas' => $_POST['doencas_cronicas'],
-                        'doencas_geneticas' => $_POST['doencas_geneticas'],
-                        'doencas_autoimunes' => $_POST['doencas_autoimunes'],
-                        'outros' => $_POST['outros']
-                    ];
-                    $controller->update($_POST['cod'], $data);
-                    header('Location: prontuario.php');
-                    exit;
-                }
-            }
-
-            if ($isPaciente && ($action == 'create' || $action == 'edit')) {
-                header('Location: prontuario.php');
-                exit;
-            }
-
             if ($action == 'list') {
                 ?>
                 <div class="d-flex justify-content-between align-items-start mb-5">
@@ -231,14 +285,19 @@ if (session_status() === PHP_SESSION_NONE) {
                                 echo "<tr>";
                                 echo "<td>" . htmlspecialchars($pron['cod']) . "</td>";
                                 echo "<td>" . htmlspecialchars($pron['paciente_nome']) . "</td>";
-                                echo "<td>" . htmlspecialchars($pron['foto']) . "</td>";
+                                $fotoPath = normalizaFotoPath($pron['foto']);
+                                if (!empty($fotoPath)) {
+                                    echo "<td class='foto-col'><img src='" . htmlspecialchars($fotoPath) . "' alt='Foto'></td>";
+                                } else {
+                                    echo "<td class='foto-col text-muted'>Sem foto</td>";
+                                }
                                 echo "<td>" . htmlspecialchars($pron['tipo_sanguineo']) . "</td>";
                                 echo "<td>" . htmlspecialchars($pron['doencas_cronicas']) . "</td>";
                                 echo "<td>" . htmlspecialchars($pron['doencas_geneticas']) . "</td>";
                                 echo "<td>" . htmlspecialchars($pron['doencas_autoimunes']) . "</td>";
                                 echo "<td>" . htmlspecialchars($pron['outros']) . "</td>";
                                 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'paciente') {
-                                    echo "<td>";
+                                    echo "<td class='actions-col'>";
                                     echo "<a href='prontuario.php?action=edit&id=" . $pron['cod'] . "' class='btn btn-sm btn-primary me-2'>Editar</a>";
                                     echo "<form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Tem certeza que deseja deletar?\")'>";
                                     echo "<input type='hidden' name='delete_id' value='" . $pron['cod'] . "'>";
@@ -283,15 +342,17 @@ if (session_status() === PHP_SESSION_NONE) {
 
                             <div class="col-md-6">
                                 <label for="foto" class="form-label">Foto (imagem)</label>
-                                <?php if ($action == 'edit' && !empty($prontuario['foto'])): ?>
-                                    <div class="mb-2">
-                                        <img src="<?= htmlspecialchars($prontuario['foto']) ?>" alt="foto" style="max-width:120px; border-radius:8px;">
-                                    </div>
-                                <?php endif; ?>
                                 <input type="file" accept="image/*" class="form-control form-control-lg" id="foto" name="foto">
                                 <?php if ($action == 'edit'): ?>
-                                    <input type="hidden" name="existing_foto" value="<?php echo htmlspecialchars($prontuario['foto'] ?? ''); ?>">
+                                    <input type="hidden" name="existing_foto" value="<?php echo htmlspecialchars(normalizaFotoPath($prontuario['foto'] ?? '')); ?>">
                                 <?php endif; ?>
+                                <div class="mt-3" id="fotoPreviewWrapper">
+                                    <?php if ($action == 'edit' && !empty($prontuario['foto'])): ?>
+                                        <img id="fotoPreview" src="<?= htmlspecialchars(normalizaFotoPath($prontuario['foto'])) ?>" alt="Pré-visualização da foto" style="max-width:180px; max-height:180px; border-radius:8px;">
+                                    <?php else: ?>
+                                        <div id="fotoPreviewPlaceholder" class="text-muted" style="font-size:.95rem;">Escolha uma imagem para pré-visualizar aqui.</div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
                             <div class="col-md-6">
@@ -310,7 +371,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
                             <div class="col-md-6">
                                 <label for="outros" class="form-label">Outros (resumo)</label>
-                                <input type="text" class="form-control form-control-lg" id="outros_short" value="<?php echo $action == 'edit' ? htmlspecialchars(substr($prontuario['outros'] ?? '',0,60)) : ''; ?>" disabled>
+                                <textarea class="form-control form-control-lg" id="outros" name="outros" rows="2"><?php echo $action == 'edit' ? htmlspecialchars($prontuario['outros'] ?? '') : ''; ?></textarea>
                             </div>
 
                             <div class="col-12">
@@ -353,6 +414,47 @@ if (session_status() === PHP_SESSION_NONE) {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const fotoInput = document.getElementById('foto');
+        const previewWrapper = document.getElementById('fotoPreviewWrapper');
+        const previewPlaceholder = document.getElementById('fotoPreviewPlaceholder');
+
+        if (fotoInput) {
+            fotoInput.addEventListener('change', function () {
+                const file = this.files[0];
+                const existingImg = document.getElementById('fotoPreview');
+
+                if (!file) {
+                    if (existingImg) {
+                        existingImg.remove();
+                    }
+                    if (previewPlaceholder) {
+                        previewPlaceholder.style.display = 'block';
+                    }
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    let img = document.getElementById('fotoPreview');
+                    if (!img) {
+                        if (previewPlaceholder) {
+                            previewPlaceholder.style.display = 'none';
+                        }
+                        img = document.createElement('img');
+                        img.id = 'fotoPreview';
+                        img.alt = 'Pré-visualização da foto';
+                        img.style.maxWidth = '180px';
+                        img.style.maxHeight = '180px';
+                        img.style.borderRadius = '8px';
+                        previewWrapper.appendChild(img);
+                    }
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
 </body>
 </html>
 

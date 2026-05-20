@@ -49,7 +49,11 @@ function pegaImagem($file, $destDir = null) {
         return ['success' => false, 'error' => 'Falha ao mover arquivo'];
     }
 
-    return ['success' => true, 'filename' => $filename];
+    return [
+        'success' => true,
+        'filename' => $filename,
+        'path' => '/SmartClinic-A/img/uploads/' . $filename
+    ];
 }
 
 ?>

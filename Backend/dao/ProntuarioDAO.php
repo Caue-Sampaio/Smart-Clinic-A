@@ -41,7 +41,33 @@ class ProntuarioDAO extends BaseDAO {
         ]);
     }
 
+    private function deleteImageFile($foto) {
+        if (empty($foto)) {
+            return;
+        }
+
+        $filename = basename($foto);
+        if ($filename === 'default-avatar.svg') {
+            return;
+        }
+
+        $uploadDir = realpath(__DIR__ . '/../../img/uploads');
+        if ($uploadDir === false) {
+            return;
+        }
+
+        $filePath = $uploadDir . DIRECTORY_SEPARATOR . $filename;
+        if (is_file($filePath)) {
+            @unlink($filePath);
+        }
+    }
+
     public function delete($cod) {
+        $prontuario = $this->getById($cod);
+        if ($prontuario && !empty($prontuario['foto'])) {
+            $this->deleteImageFile($prontuario['foto']);
+        }
+
         $stmt = $this->db->prepare('DELETE FROM prontuario WHERE cod = ?');
         return $stmt->execute([$cod]);
     }
