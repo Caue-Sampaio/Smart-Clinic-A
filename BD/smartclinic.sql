@@ -221,6 +221,7 @@ CREATE TABLE `receita` (
   `fk_paciente_cod` int(11) DEFAULT NULL,
   `fk_medico_cod` int(11) DEFAULT NULL,
   `data_receita` date DEFAULT NULL,
+  `descricao` text DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

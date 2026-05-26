@@ -105,6 +105,7 @@ CREATE TABLE receita (
     fk_paciente_cod INT,
     fk_medico_cod INT,
     data_receita DATE,
+    descricao TEXT,
     tipo VARCHAR(50),
     FOREIGN KEY (fk_paciente_cod) REFERENCES paciente(cod),
     FOREIGN KEY (fk_medico_cod) REFERENCES medico(cod)

@@ -108,6 +108,19 @@ class AgendamentoDAO extends BaseDAO {
                     $data['data_agendamento'],
                     $consulta['fk_agendamento_cod']
                 ]);
+
+                $agendamentoStmt = $this->db->prepare('SELECT fk_solicitacao_cod FROM agendamento WHERE cod = ?');
+                $agendamentoStmt->execute([$consulta['fk_agendamento_cod']]);
+                $agendamento = $agendamentoStmt->fetch();
+
+                if ($agendamento && $agendamento['fk_solicitacao_cod']) {
+                    $stmt = $this->db->prepare('UPDATE solicitacao SET fk_paciente_cod = ?, motivo = ? WHERE cod = ?');
+                    $stmt->execute([
+                        $data['fk_paciente_cod'] ?? null,
+                        $data['motivo'] ?? null,
+                        $agendamento['fk_solicitacao_cod']
+                    ]);
+                }
             }
 
             return true;

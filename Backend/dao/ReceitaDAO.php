@@ -19,24 +19,36 @@ class ReceitaDAO extends BaseDAO {
         return $stmt->fetch();
     }
 
+    public function getDetailedById($cod) {
+        $stmt = $this->db->prepare('SELECT r.*, p.nome as paciente_nome, m.nome as medico_nome
+                                    FROM receita r
+                                    LEFT JOIN paciente p ON r.fk_paciente_cod = p.cod
+                                    LEFT JOIN medico m ON r.fk_medico_cod = m.cod
+                                    WHERE r.cod = ?');
+        $stmt->execute([$cod]);
+        return $stmt->fetch();
+    }
+
     public function create($data) {
-        $stmt = $this->db->prepare('INSERT INTO receita (fk_paciente_cod, fk_medico_cod, data_receita, tipo) VALUES (?, ?, ?, ?)');
+        $stmt = $this->db->prepare('INSERT INTO receita (fk_paciente_cod, fk_medico_cod, data_receita, descricao, tipo) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['fk_paciente_cod'],
             $data['fk_medico_cod'],
             $data['data_receita'] ?? null,
-            $data['tipo'] ?? null
+            $data['descricao'] ?? null,
+            $data['tipo'] ?? 'Receita genérica'
         ]);
         return $this->db->lastInsertId();
     }
 
     public function update($cod, $data) {
-        $stmt = $this->db->prepare('UPDATE receita SET fk_paciente_cod = ?, fk_medico_cod = ?, data_receita = ?, tipo = ? WHERE cod = ?');
+        $stmt = $this->db->prepare('UPDATE receita SET fk_paciente_cod = ?, fk_medico_cod = ?, data_receita = ?, descricao = ?, tipo = ? WHERE cod = ?');
         return $stmt->execute([
             $data['fk_paciente_cod'],
             $data['fk_medico_cod'],
             $data['data_receita'] ?? null,
-            $data['tipo'] ?? null,
+            $data['descricao'] ?? null,
+            $data['tipo'] ?? 'Receita genérica',
             $cod
         ]);
     }

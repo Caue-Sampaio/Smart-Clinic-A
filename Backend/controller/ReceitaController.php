@@ -22,6 +22,10 @@ class ReceitaController extends BaseController {
         return $this->dao->getById($cod);
     }
 
+    public function getDetailedById($cod) {
+        return $this->dao->getDetailedById($cod);
+    }
+
     public function create($data) {
         return $this->dao->create($data);
     }
