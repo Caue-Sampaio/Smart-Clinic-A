@@ -30,7 +30,6 @@ if (!function_exists('renderNavbar')) {
                 ['href' => 'medicamento.php', 'icon' => 'bi bi-capsule',               'label' => 'Medicamentos'],
                 ['href' => 'agendamento.php', 'icon' => 'bi bi-calendar-check',        'label' => 'Agendamentos'],
                 ['href' => 'consulta.php',    'icon' => 'bi bi-clipboard-pulse',       'label' => 'Consultas'],
-                ['href' => 'prescrever.php',  'icon' => 'bi bi-prescription',          'label' => 'Prescrever'],
                 ['href' => 'prontuario.php',  'icon' => 'bi bi-file-earmark-medical',  'label' => 'Prontuários'],
                 ['href' => 'receita.php',     'icon' => 'bi bi-receipt',               'label' => 'Receitas'],
                 ['href' => 'exame.php',       'icon' => 'bi bi-file-earmark-medical',  'label' => 'Exames'],
