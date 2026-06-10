@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/MedicamentoController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/MedicamentoController.php';
 $controller = new MedicamentoController();
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';

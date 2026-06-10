@@ -2,8 +2,8 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/InstituicaoController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PacienteController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/InstituicaoController.php';
 
 $controller = new PacienteController();
 $instituicaoController = new InstituicaoController();

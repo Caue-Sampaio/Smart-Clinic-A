@@ -88,7 +88,7 @@ require_once __DIR__ . '/navbar.php';
 <div class="container-lg" style="max-width: 1200px;">
 
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/InstituicaoController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/InstituicaoController.php';
 $controller = new InstituicaoController();
 
 $action = isset($_GET['action']) ? $_GET['action'] : 'list';

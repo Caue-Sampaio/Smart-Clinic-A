@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/BaseDAO.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/BaseDAO.php';
 
 class InstituicaoDAO extends BaseDAO {
     public function getAll() {

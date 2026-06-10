@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/BaseController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/InstituicaoDAO.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/BaseController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/InstituicaoDAO.php';
 
 class InstituicaoController extends BaseController {
     private $dao;

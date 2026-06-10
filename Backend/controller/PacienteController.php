@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/BaseController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/PacienteDAO.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/BaseController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/PacienteDAO.php';
 
 class PacienteController extends BaseController {
     private $dao;
@@ -28,11 +28,11 @@ class PacienteController extends BaseController {
 
     public function delete($cod) {
         // Delete dependencies first
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/SolicitacaoDAO.php';
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/ExameDAO.php';
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/AgendamentoDAO.php';
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/ProntuarioDAO.php';
-        require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/MonitoramentoDAO.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/SolicitacaoDAO.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/ExameDAO.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/AgendamentoDAO.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/ProntuarioDAO.php';
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/MonitoramentoDAO.php';
 
         $solicitacaoDAO = new SolicitacaoDAO();
         $exameDAO = new ExameDAO();

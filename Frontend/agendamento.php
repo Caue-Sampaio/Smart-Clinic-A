@@ -99,8 +99,8 @@ $pacienteLogadoNome = $_SESSION['user_name'] ?? null;
 <div class="container-lg" style="max-width: 1200px;">
 
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/AgendamentoController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/AgendamentoController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PacienteController.php';
 
 $controller = new AgendamentoController();
 $pacienteController = new PacienteController();

@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 function normalizaFotoPath(string $path = null): string {
-    $defaultPath = '/SmartClinic-A/img/default-avatar.svg';
+    $defaultPath = '/SMART-CLINIC-A/img/default-avatar.svg';
 
     if (empty($path)) {
         return $defaultPath;
@@ -14,13 +14,13 @@ function normalizaFotoPath(string $path = null): string {
         return $path;
     }
 
-    return '/SmartClinic-A/' . ltrim($path, '/\\');
+    return '/SMART-CLINIC-A/' . ltrim($path, '/\\');
 }
 
 require_once __DIR__ . '/navbar.php';
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/ProntuarioController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/ProntuarioController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PacienteController.php';
 
 $controller = new ProntuarioController();
 $pacienteController = new PacienteController();
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action == 'create' && !$isPaciente) {
         $foto_to_store = null;
         if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/pegaimagem.php';
             $res = pegaImagem($_FILES['foto']);
             if ($res['success']) {
                 $foto_to_store = $res['path'];
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($foto_to_store)) {
-            $foto_to_store = '/SmartClinic-A/img/default-avatar.svg';
+            $foto_to_store = '/SMART-CLINIC-A/img/default-avatar.svg';
         }
 
         $data = [
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action == 'edit' && isset($_POST['cod'])) {
         $foto_to_store = null;
         if (isset($_FILES['foto']) && isset($_FILES['foto']['tmp_name']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/pegaimagem.php';
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/pegaimagem.php';
             $res = pegaImagem($_FILES['foto']);
             if ($res['success']) {
                 $foto_to_store = $res['path'];
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($foto_to_store)) {
-            $foto_to_store = '/SmartClinic-A/img/default-avatar.svg';
+            $foto_to_store = '/SMART-CLINIC-A/img/default-avatar.svg';
         }
 
         $data = [

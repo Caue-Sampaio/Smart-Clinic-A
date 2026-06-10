@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/dao/BaseDAO.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/dao/BaseDAO.php';
 
 class MedicoDAO extends BaseDAO {
     public function getAll() {
@@ -10,6 +10,24 @@ class MedicoDAO extends BaseDAO {
     public function getById($cod) {
         $stmt = $this->db->prepare('SELECT m.*, i.nome as instituicao_nome FROM medico m LEFT JOIN instituicao i ON m.fk_instituicao_cod = i.cod WHERE m.cod = ?');
         $stmt->execute([$cod]);
+        return $stmt->fetch();
+    }
+
+    public function getByCpf($cpf) {
+        $stmt = $this->db->prepare('SELECT cod FROM medico WHERE cpf = ?');
+        $stmt->execute([$cpf]);
+        return $stmt->fetch();
+    }
+
+    public function getByCrm($crm) {
+        $stmt = $this->db->prepare('SELECT cod FROM medico WHERE crm = ?');
+        $stmt->execute([$crm]);
+        return $stmt->fetch();
+    }
+
+    public function getByEmail($email) {
+        $stmt = $this->db->prepare('SELECT cod FROM medico WHERE email = ?');
+        $stmt->execute([$email]);
         return $stmt->fetch();
     }
 

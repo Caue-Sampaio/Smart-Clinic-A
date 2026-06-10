@@ -3,9 +3,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/lib/fpdf.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/ReceitaController.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PrescreverController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/lib/fpdf.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/ReceitaController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PrescreverController.php';
 
 $controller = new ReceitaController();
 $prescreverController = new PrescreverController();
@@ -53,7 +53,7 @@ class ReceitaPDF extends FPDF {
         // Informações de contato lado direito
         $this->SetFont('Arial', '', 8);
         $this->SetTextColor(120, 120, 120);
-        $this->Cell(0, 4, utf8_decode('contato@smartclinic.com  |  (00) 0000-0000'), 0, 1, 'C');
+        $this->Cell(0, 4, utf8_decode('contato@SMART-CLINIC.com  |  (00) 0000-0000'), 0, 1, 'C');
 
         $this->Ln(3);
 
@@ -89,7 +89,7 @@ class ReceitaPDF extends FPDF {
     // Local e data
     $this->SetFont('Arial', '', 9);
     $this->SetTextColor(80, 80, 80);
-    $this->Cell(0, 5, utf8_decode('Local e Data: _____________, _____ / _____ / _________'), 0, 1, 'L');
+    $this->Cell(0, 5,('Data:_____ / _____ / ________'), 0, 1, 'L');
     $this->Ln(2);
 
     // Linha de assinatura centralizada
@@ -100,13 +100,13 @@ class ReceitaPDF extends FPDF {
     $this->Ln(2);
     $this->SetFont('Arial', '', 8);
     $this->SetTextColor(100, 100, 100);
-    $this->Cell(0, 4, utf8_decode('Assinatura e Carimbo do Médico'), 0, 1, 'C');
+    $this->Cell(0, 4, ('Assinatura e Carimbo do Medico'), 0, 1, 'C');
     $this->Ln(2);
 
     // Rodapé texto
     $this->SetFont('Arial', 'I', 7);
     $this->SetTextColor(150, 150, 150);
-    $this->Cell(0, 4, utf8_decode('Documento gerado automaticamente pelo SMART CLINIC  —  Página ') . $this->PageNo(), 0, 0, 'C');
+    $this->Cell(0, 4,('Documento gerado automaticamente pelo SMART CLINIC  —  Página ') . $this->PageNo(), 0, 0, 'C');
 }
 }
 
@@ -233,7 +233,7 @@ $pdf->SetFont('Arial', '', 9);
 $pdf->SetTextColor(80, 80, 80);
  
 // ── Marca d'água (logo centralizada) ──────────────────────────
-$logoPath = 'C:\\xampp\\htdocs\\SmartClinic-A\\img\\LogoWatermark.png';
+$logoPath = 'C:\\xampp\\htdocs\\SMART-CLINIC-A\\img\\LogoA_transparente.png';
 if (file_exists($logoPath)) {
     $logoW = 130;
     $logoH = 130;

@@ -25,8 +25,8 @@ if (session_status() === PHP_SESSION_NONE) {
     <section class="py-5">
         <div class="container py-4">
             <?php
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/MonitoramentoController.php';
-            require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartClinic-A/Backend/controller/PacienteController.php';
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/MonitoramentoController.php';
+            require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PacienteController.php';
             $controller = new MonitoramentoController();
             $pacienteController = new PacienteController();
             $pacientes = $pacienteController->getAll();
