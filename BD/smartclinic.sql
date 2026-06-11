@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/05/2026 às 14:24
+-- Tempo de geração: 11/06/2026 às 23:03
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -139,7 +139,7 @@ CREATE TABLE `medico` (
 --
 
 INSERT INTO `medico` (`cod`, `fk_instituicao_cod`, `cpf`, `crm`, `rqe`, `foto`, `nome`, `email`, `senha`, `especialidade`, `telefone`, `endereco`) VALUES
-(1, 1, '32525324', '432523525352', '52352355', '', 'cauê', 'medico@gmail.com', 'qwer123', 's', '324324324', 'casa');
+(1, 1, '32525324', '432523525352', '52352355', 'medico_6a2b1bef9922c.jpg', 'cauê', 'medico@gmail.com', '', 'ortopedista', '324324324', 'casa');
 
 -- --------------------------------------------------------
 
@@ -169,16 +169,17 @@ CREATE TABLE `paciente` (
   `data_nascimento` date NOT NULL,
   `email` varchar(100) DEFAULT NULL,
   `senha` varchar(100) DEFAULT NULL,
-  `endereco` varchar(200) DEFAULT NULL
+  `endereco` varchar(200) DEFAULT NULL,
+  `foto` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `paciente`
 --
 
-INSERT INTO `paciente` (`cod`, `fk_instituicao_cod`, `cpf`, `nome`, `data_nascimento`, `email`, `senha`, `endereco`) VALUES
-(2, 1, '12345678900', 'cauê Sampaio', '2000-12-01', 'paciente@gmail.com', 'qwer123', 'casa'),
-(5, 1, '12345678901', 'Mikael', '2000-01-01', 'Mikael.111@gmail.com', 'qwer111', 'prédio');
+INSERT INTO `paciente` (`cod`, `fk_instituicao_cod`, `cpf`, `nome`, `data_nascimento`, `email`, `senha`, `endereco`, `foto`) VALUES
+(2, 1, '12345678900', 'cauê Sampaio', '2000-12-01', 'paciente@gmail.com', '', 'casa', NULL),
+(5, 1, '12345678901', 'Mikael', '2000-01-01', 'Mikael.111@gmail.com', 'qwer111', 'prédio', NULL);
 
 -- --------------------------------------------------------
 
@@ -210,6 +211,13 @@ CREATE TABLE `prontuario` (
   `outros` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `prontuario`
+--
+
+INSERT INTO `prontuario` (`cod`, `fk_paciente_cpf`, `foto`, `tipo_sanguineo`, `doencas_cronicas`, `doencas_geneticas`, `doencas_autoimunes`, `outros`) VALUES
+(1, '12345678900', NULL, 'A+', 'sada', 'asddad', 'sadasd', 'asda');
+
 -- --------------------------------------------------------
 
 --
@@ -224,6 +232,13 @@ CREATE TABLE `receita` (
   `descricao` text DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `receita`
+--
+
+INSERT INTO `receita` (`cod`, `fk_paciente_cod`, `fk_medico_cod`, `data_receita`, `descricao`, `tipo`) VALUES
+(1, 2, 1, '2026-06-11', 'adada', 'Receita genérica');
 
 -- --------------------------------------------------------
 
@@ -405,13 +420,13 @@ ALTER TABLE `paciente`
 -- AUTO_INCREMENT de tabela `prontuario`
 --
 ALTER TABLE `prontuario`
-  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `receita`
 --
 ALTER TABLE `receita`
-  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `solicitacao`
