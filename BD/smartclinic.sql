@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 11/06/2026 às 23:03
+-- Tempo de geração: 13/06/2026 às 21:05
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -20,6 +20,26 @@ SET time_zone = "+00:00";
 --
 -- Banco de dados: `smartclinic`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `admin`
+--
+
+CREATE TABLE `admin` (
+  `cod` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `admin`
+--
+
+INSERT INTO `admin` (`cod`, `nome`, `email`, `senha`) VALUES
+(1, 'Administrador', 'admin@smartclinic.com', 'admin123');
 
 -- --------------------------------------------------------
 
@@ -139,7 +159,7 @@ CREATE TABLE `medico` (
 --
 
 INSERT INTO `medico` (`cod`, `fk_instituicao_cod`, `cpf`, `crm`, `rqe`, `foto`, `nome`, `email`, `senha`, `especialidade`, `telefone`, `endereco`) VALUES
-(1, 1, '32525324', '432523525352', '52352355', 'medico_6a2b1bef9922c.jpg', 'cauê', 'medico@gmail.com', '', 'ortopedista', '324324324', 'casa');
+(1, 1, '32525324', '432523525352', '52352355', 'medico_6a2da1693c53a.jpg', 'cauê', 'medico@gmail.com', '', 'ortopedista', '324324324', 'casa');
 
 -- --------------------------------------------------------
 
@@ -178,8 +198,8 @@ CREATE TABLE `paciente` (
 --
 
 INSERT INTO `paciente` (`cod`, `fk_instituicao_cod`, `cpf`, `nome`, `data_nascimento`, `email`, `senha`, `endereco`, `foto`) VALUES
-(2, 1, '12345678900', 'cauê Sampaio', '2000-12-01', 'paciente@gmail.com', '', 'casa', NULL),
-(5, 1, '12345678901', 'Mikael', '2000-01-01', 'Mikael.111@gmail.com', 'qwer111', 'prédio', NULL);
+(2, 1, '12345678900', 'cauê Sampaio', '2000-12-01', 'paciente@gmail.com', '', 'casa', 'pac_6a2da825cc1f9.jpg'),
+(5, 1, '12345678901', 'Mikael', '2000-01-01', 'Mikael.111@gmail.com', '', 'prédio', 'pac_6a2da84391447.jpg');
 
 -- --------------------------------------------------------
 
@@ -260,6 +280,13 @@ CREATE TABLE `solicitacao` (
 --
 -- Índices para tabelas despejadas
 --
+
+--
+-- Índices de tabela `admin`
+--
+ALTER TABLE `admin`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Índices de tabela `agendamento`
@@ -361,6 +388,12 @@ ALTER TABLE `solicitacao`
 --
 -- AUTO_INCREMENT para tabelas despejadas
 --
+
+--
+-- AUTO_INCREMENT de tabela `admin`
+--
+ALTER TABLE `admin`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `agendamento`

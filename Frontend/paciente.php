@@ -1,4 +1,5 @@
 <?php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -323,14 +324,21 @@ if ($action == 'list'): ?>
 <div class="col-xl-3 col-lg-4 col-md-6">
     <div class="pac-card">
         <div class="pac-card-header">
-            <?php if ($fotoSrc): ?>
-                <img src="<?= $fotoSrc ?>" alt="Foto" class="pac-avatar">
-            <?php else: ?>
-                <div class="pac-avatar-placeholder"><i class="bi bi-person-fill"></i></div>
-            <?php endif; ?>
-            <h5><?= htmlspecialchars($pac['nome']) ?></h5>
-            <span><?= htmlspecialchars($pac['cpf']) ?></span>
-        </div>
+    <?php
+    $fotoSrc = !empty($pac['foto']) ? FOTO_PAC_URL . $pac['foto'] : '';
+    ?>
+    <?php if ($fotoSrc): ?>
+        <img src="<?= htmlspecialchars($fotoSrc) ?>"
+             alt="Foto"
+             class="pac-avatar"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="pac-avatar-placeholder" style="display:none;"><i class="bi bi-person-fill"></i></div>
+    <?php else: ?>
+        <div class="pac-avatar-placeholder"><i class="bi bi-person-fill"></i></div>
+    <?php endif; ?>
+    <h5><?= htmlspecialchars($pac['nome']) ?></h5>
+    <span><?= htmlspecialchars($pac['cpf']) ?></span>
+</div>
         <div class="pac-card-body">
             <div class="pac-info-row">
                 <i class="bi bi-building"></i>
