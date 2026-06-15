@@ -4,7 +4,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'medico') {
     header('Location: login.php');
     exit;
 }
-$nomeUsuario = $_SESSION['nome'] ?? 'Médico';
+$nomeUsuario = $_SESSION['nome'] ?? $userName  = $_SESSION['user_name']  ?? 'Usuário';
 $primeiroNome = explode(' ', $nomeUsuario)[0];
 $hora = (int)date('H');
 if ($hora < 12) $saudacao = 'Bom dia';
@@ -210,7 +210,7 @@ else $saudacao = 'Boa noite';
                 </div>
             </div>
             <div class="hero-icon" style="position:relative;z-index:2;">
-                <i class="bi bi-stethoscope"></i>
+                <i class="bi bi-heart-pulse"></i>
             </div>
         </div>
     </div>

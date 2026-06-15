@@ -100,7 +100,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <th>Altura</th>
                                 <th>Peso</th>
                                 <th>IMC</th>
-                                <th>Data</th>
+                             
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -119,7 +119,6 @@ if (session_status() === PHP_SESSION_NONE) {
                                 echo "<td>" . htmlspecialchars($mon['altura']) . "</td>";
                                 echo "<td>" . htmlspecialchars($mon['peso']) . "</td>";
                                 echo "<td>" . htmlspecialchars($mon['imc']) . "</td>";
-                                echo "<td>" . htmlspecialchars($mon['data_monitoramento']) . "</td>";
                                 echo "<td>";
                                 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'paciente') {
                                     echo "<a href='monitoramento.php?action=edit&id=" . $mon['cod'] . "' class='btn btn-sm btn-primary me-2'>Editar</a>";

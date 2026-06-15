@@ -37,6 +37,7 @@ if (!function_exists('renderNavbar')) {
             // Médico: vê pacientes (só leitura), sem médicos nem instituições
             $dropdownLinks = [
                 ['section' => 'Atendimento'],
+                 ['href'=>'medico_dashboard.php','icon'=>'bi bi-person-circle',   'label'=>'Meu Portal'],
                 ['href'=>'paciente.php',    'icon'=>'bi bi-people',                'label'=>'Pacientes'],
                 ['href'=>'medicamento.php', 'icon'=>'bi bi-capsule',               'label'=>'Medicamentos'],
                 ['section' => 'Clínico'],

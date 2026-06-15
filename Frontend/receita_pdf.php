@@ -7,10 +7,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/lib/fpdf.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/ReceitaController.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SMART-CLINIC-A/Backend/controller/PrescreverController.php';
 
-$controller = new ReceitaController();
+$controller          = new ReceitaController();
 $prescreverController = new PrescreverController();
-$isPaciente = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
-$pacienteLogadoCod = $_SESSION['user_id'] ?? null;
+$isPaciente          = isset($_SESSION['role']) && $_SESSION['role'] === 'paciente';
+$pacienteLogadoCod   = $_SESSION['user_id'] ?? null;
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 if ($id <= 0) { header('Location: receita.php'); exit; }
@@ -24,21 +24,31 @@ if ($isPaciente && !empty($pacienteLogadoCod) && $receita['fk_paciente_cod'] != 
 
 $medicamentos = $prescreverController->getMedicamentosByReceita($id);
 
+// Formata data do banco (Y-m-d) para DD/MM/AAAA
+$dataFormatada = '';
+if (!empty($receita['data_receita'])) {
+    $dt = DateTime::createFromFormat('Y-m-d', $receita['data_receita']);
+    $dataFormatada = $dt ? $dt->format('d/m/Y') : $receita['data_receita'];
+}
+
 function pdfText($text) {
     return utf8_decode($text ?? '');
 }
 
 class ReceitaPDF extends FPDF {
+
+    // Propriedade para guardar a data da receita
+    public string $dataReceita = '';
+
     function Header() {
         // Linha azul topo
         $this->SetFillColor(26, 86, 219);
         $this->Rect(0, 0, 210, 2, 'F');
 
-        // Área do cabeçalho
         $this->SetFillColor(255, 255, 255);
         $this->Ln(6);
 
-        // Nome da clínica centralizado
+        // Nome da clínica
         $this->SetFont('Arial', 'B', 22);
         $this->SetTextColor(26, 86, 219);
         $this->Cell(0, 10, 'SMART CLINIC', 0, 1, 'C');
@@ -50,7 +60,7 @@ class ReceitaPDF extends FPDF {
 
         $this->Ln(2);
 
-        // Informações de contato lado direito
+        // Contato
         $this->SetFont('Arial', '', 8);
         $this->SetTextColor(120, 120, 120);
         $this->Cell(0, 4, utf8_decode('contato@SMART-CLINIC.com  |  (00) 0000-0000'), 0, 1, 'C');
@@ -68,7 +78,7 @@ class ReceitaPDF extends FPDF {
         $this->SetTextColor(26, 86, 219);
         $this->Cell(0, 8, 'RECEITA', 0, 1, 'C');
 
-        // Linha fina abaixo do título
+        // Linha fina
         $this->SetDrawColor(200, 200, 200);
         $this->SetLineWidth(0.3);
         $this->Line(10, $this->GetY(), 200, $this->GetY());
@@ -78,44 +88,51 @@ class ReceitaPDF extends FPDF {
     }
 
     function Footer() {
-    $this->SetY(-28);
+        $this->SetY(-28);
 
-    // Linha separadora
-    $this->SetDrawColor(180, 180, 180);
-    $this->SetLineWidth(0.3);
-    $this->Line(10, $this->GetY(), 200, $this->GetY());
-    $this->Ln(4);
+        // Linha separadora
+        $this->SetDrawColor(180, 180, 180);
+        $this->SetLineWidth(0.3);
+        $this->Line(10, $this->GetY(), 200, $this->GetY());
+        $this->Ln(4);
 
-    // Local e data
-    $this->SetFont('Arial', '', 9);
-    $this->SetTextColor(80, 80, 80);
-    $this->Cell(0, 5,('Data:_____ / _____ / ________'), 0, 1, 'L');
-    $this->Ln(2);
+        // Data da receita vinda do banco — não pode ser alterada
+        $this->SetFont('Arial', 'B', 9);
+        $this->SetTextColor(40, 40, 40);
+        $this->Cell(30, 5, 'Data da Receita:', 0, 0, 'L');
+        $this->SetFont('Arial', '', 9);
+        $this->SetTextColor(26, 86, 219);
+        $this->Cell(0, 5, $this->dataReceita, 0, 1, 'L');
+        $this->Ln(2);
 
-    // Linha de assinatura centralizada
-    $this->SetDrawColor(100, 100, 100);
-    $this->SetLineWidth(0.4);
-    $centerX = 70;
-    $this->Line($centerX, $this->GetY(), $centerX + 70, $this->GetY());
-    $this->Ln(2);
-    $this->SetFont('Arial', '', 8);
-    $this->SetTextColor(100, 100, 100);
-    $this->Cell(0, 4, ('Assinatura e Carimbo do Medico'), 0, 1, 'C');
-    $this->Ln(2);
+        // Linha de assinatura
+        $this->SetDrawColor(100, 100, 100);
+        $this->SetLineWidth(0.4);
+        $centerX = 70;
+        $this->Line($centerX, $this->GetY(), $centerX + 70, $this->GetY());
+        $this->Ln(2);
+        $this->SetFont('Arial', '', 8);
+        $this->SetTextColor(100, 100, 100);
+        $this->Cell(0, 4, utf8_decode('Assinatura e Carimbo do Médico'), 0, 1, 'C');
+        $this->Ln(2);
 
-    // Rodapé texto
-    $this->SetFont('Arial', 'I', 7);
-    $this->SetTextColor(150, 150, 150);
-    $this->Cell(0, 4,('Documento gerado automaticamente pelo SMART CLINIC  —  Página ') . $this->PageNo(), 0, 0, 'C');
-}
+        // Rodapé
+        $this->SetFont('Arial', 'I', 7);
+        $this->SetTextColor(150, 150, 150);
+        $this->Cell(0, 4, utf8_decode('Documento gerado automaticamente pelo SMART CLINIC  —  Página ') . $this->PageNo(), 0, 0, 'C');
+    }
 }
 
 $pdf = new ReceitaPDF('P', 'mm', 'A4');
 $pdf->SetAutoPageBreak(true, 58);
+
+// Passa a data formatada para o rodapé
+$pdf->dataReceita = $dataFormatada;
+
 $pdf->AddPage();
 $pdf->SetTitle(pdfText('Receita #' . $receita['cod']));
 
-// ── Médico (canto superior esquerdo, estilo receituário) ───────
+// ── Médico ────────────────────────────────────────────────────
 $pdf->SetFont('Arial', 'B', 11);
 $pdf->SetTextColor(40, 40, 40);
 $pdf->Cell(0, 6, pdfText($receita['medico_nome'] ?? 'Médico'), 0, 1, 'L');
@@ -124,15 +141,15 @@ $pdf->SetTextColor(100, 100, 100);
 $pdf->Cell(0, 5, pdfText('CRM: __________'), 0, 1, 'L');
 $pdf->Ln(4);
 
-// ── Campos: Nome, Nasc, Endereço ───────────────────────────────
+// ── Nome, Nascimento, Endereço ────────────────────────────────
 $pdf->SetFont('Arial', '', 10);
 $pdf->SetTextColor(40, 40, 40);
 
-// Nome e Nasc na mesma linha
-$pdf->Cell(15, 7, pdfText('Nome:'), 0, 0);
 $pdf->SetDrawColor(180, 180, 180);
 $pdf->SetLineWidth(0.3);
-// Linha do nome
+
+// Nome e Nasc.
+$pdf->Cell(15, 7, pdfText('Nome:'), 0, 0);
 $nameX = $pdf->GetX();
 $nameY = $pdf->GetY() + 6;
 $pdf->Cell(100, 7, pdfText($receita['paciente_nome'] ?? ''), 0, 0);
@@ -152,13 +169,13 @@ $pdf->Line($endX, $endY, 200, $endY);
 
 $pdf->Ln(2);
 
-// ── Linha separadora antes das recomendações ───────────────────
+// ── Linha separadora ──────────────────────────────────────────
 $pdf->SetDrawColor(200, 200, 200);
 $pdf->SetLineWidth(0.3);
 $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
 $pdf->Ln(4);
 
-// ── Recomendações / Medicamentos ───────────────────────────────
+// ── Recomendações / Medicamentos ──────────────────────────────
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetTextColor(40, 40, 40);
 $pdf->Cell(0, 6, pdfText('Recomendações:'), 0, 1);
@@ -173,7 +190,6 @@ if (!empty($receita['descricao'])) {
 
 if (!empty($medicamentos)) {
     foreach ($medicamentos as $index => $med) {
-        // Número + nome em negrito
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->SetTextColor(26, 86, 219);
         $pdf->Cell(8, 7, ($index + 1) . '.', 0, 0);
@@ -184,7 +200,6 @@ if (!empty($medicamentos)) {
         if (!empty($med['forma']))   $medNome .= ' (' . pdfText($med['forma']) . ')';
         $pdf->MultiCell(0, 7, $medNome, 0, 'L');
 
-        // Detalhes em itálico
         $pdf->SetFont('Arial', 'I', 9);
         $pdf->SetTextColor(80, 80, 80);
 
@@ -209,7 +224,7 @@ if (!empty($medicamentos)) {
     $pdf->MultiCell(0, 6, pdfText('Nenhum medicamento vinculado a esta receita.'), 0, 'L');
 }
 
-// ── Assinatura do médico ───────────────────────────────────────
+// ── Assinatura do médico (corpo do documento) ─────────────────
 $pdf->Ln(8);
 $assinaturaX = 120;
 $assinaturaY = $pdf->GetY();
@@ -227,12 +242,7 @@ $pdf->SetFont('Arial', 'B', 9);
 $pdf->SetTextColor(40, 40, 40);
 $pdf->Cell(80, 5, pdfText($receita['medico_nome'] ?? ''), 0, 1, 'C');
 
-// Data
-$pdf->Ln(6);
-$pdf->SetFont('Arial', '', 9);
-$pdf->SetTextColor(80, 80, 80);
- 
-// ── Marca d'água (logo centralizada) ──────────────────────────
+// ── Marca d'água (logo centralizada) ─────────────────────────
 $logoPath = 'C:\\xampp\\htdocs\\SMART-CLINIC-A\\img\\LogoA_transparente.png';
 if (file_exists($logoPath)) {
     $logoW = 130;

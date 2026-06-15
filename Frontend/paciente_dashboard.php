@@ -4,7 +4,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'paciente') {
     header('Location: login.php');
     exit;
 }
-$nomeUsuario = $_SESSION['nome'] ?? 'Paciente';
+$nomeUsuario = $_SESSION['nome'] ?? $userName  = $_SESSION['user_name']  ?? 'Usuário';
 $primeiroNome = explode(' ', $nomeUsuario)[0];
 $hora = (int)date('H');
 if ($hora < 12) $saudacao = 'Bom dia';
