@@ -1,0 +1,582 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 17/06/2026 às 11:03
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Banco de dados: `smartclinic`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `admin`
+--
+
+CREATE TABLE `admin` (
+  `cod` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `admin`
+--
+
+INSERT INTO `admin` (`cod`, `nome`, `email`, `senha`) VALUES
+(1, 'Administrador', 'admin@smartclinic.com', 'admin123');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `agendamento`
+--
+
+CREATE TABLE `agendamento` (
+  `cod` int(11) NOT NULL,
+  `fk_solicitacao_cod` int(11) DEFAULT NULL,
+  `data_agendamento` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `agendamento`
+--
+
+INSERT INTO `agendamento` (`cod`, `fk_solicitacao_cod`, `data_agendamento`) VALUES
+(1, 2, '2026-06-16 21:38:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `consulta`
+--
+
+CREATE TABLE `consulta` (
+  `cod` int(11) NOT NULL,
+  `fk_agendamento_cod` int(11) DEFAULT NULL,
+  `data_consulta` datetime DEFAULT NULL,
+  `sintese` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `consulta`
+--
+
+INSERT INTO `consulta` (`cod`, `fk_agendamento_cod`, `data_consulta`, `sintese`) VALUES
+(1, 1, '2026-06-16 21:38:00', '');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `declaracao`
+--
+
+CREATE TABLE `declaracao` (
+  `cod` int(11) NOT NULL,
+  `fk_paciente_cod` int(11) DEFAULT NULL,
+  `fk_medico_cod` int(11) DEFAULT NULL,
+  `tipo` varchar(50) DEFAULT NULL,
+  `motivo` text DEFAULT NULL,
+  `validade` date DEFAULT NULL,
+  `data_hora` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `exame`
+--
+
+CREATE TABLE `exame` (
+  `cod` int(11) NOT NULL,
+  `fk_solicitacao_cod` int(11) DEFAULT NULL,
+  `arquivo` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `instituicao`
+--
+
+CREATE TABLE `instituicao` (
+  `cod` int(11) NOT NULL,
+  `cnpj` varchar(20) DEFAULT NULL,
+  `logo` varchar(200) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(100) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `endereco` varchar(200) NOT NULL,
+  `status` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `instituicao`
+--
+
+INSERT INTO `instituicao` (`cod`, `cnpj`, `logo`, `email`, `senha`, `nome`, `telefone`, `endereco`, `status`) VALUES
+(1, '12345678000100', 'logo.png', 'instituicao@email.com', 'senha123', 'Instituicao Teste', '11999999999', 'Endereco Teste', 'Ativo');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `medicamento`
+--
+
+CREATE TABLE `medicamento` (
+  `cod` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `dosagem` varchar(50) DEFAULT NULL,
+  `forma` varchar(50) DEFAULT NULL,
+  `descricao` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `medicamento`
+--
+
+INSERT INTO `medicamento` (`cod`, `nome`, `dosagem`, `forma`, `descricao`) VALUES
+(1, 'dipirona', '10mg', 'xarope', '');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `medico`
+--
+
+CREATE TABLE `medico` (
+  `cod` int(11) NOT NULL,
+  `fk_instituicao_cod` int(11) DEFAULT NULL,
+  `cpf` varchar(11) NOT NULL,
+  `crm` varchar(20) NOT NULL,
+  `rqe` varchar(20) DEFAULT NULL,
+  `foto` varchar(200) DEFAULT NULL,
+  `nome` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `senha` varchar(100) NOT NULL,
+  `especialidade` varchar(50) DEFAULT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `endereco` varchar(200) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `medico`
+--
+
+INSERT INTO `medico` (`cod`, `fk_instituicao_cod`, `cpf`, `crm`, `rqe`, `foto`, `nome`, `email`, `senha`, `especialidade`, `telefone`, `endereco`) VALUES
+(1, 1, '32525324', '432523525352', '52352355', 'medico_6a2da1693c53a.jpg', 'cauê Sampaio', 'medico@gmail.com', 'qwer123', 'ortopedista', '324324324', 'casa');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `monitoramento`
+--
+
+CREATE TABLE `monitoramento` (
+  `cod` int(11) NOT NULL,
+  `fk_paciente_cpf` varchar(11) DEFAULT NULL,
+  `altura` decimal(5,2) DEFAULT NULL,
+  `peso` decimal(5,2) DEFAULT NULL,
+  `imc` decimal(5,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `monitoramento`
+--
+
+INSERT INTO `monitoramento` (`cod`, `fk_paciente_cpf`, `altura`, `peso`, `imc`) VALUES
+(1, '12345678900', 1.60, 90.00, 0.61);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `paciente`
+--
+
+CREATE TABLE `paciente` (
+  `cod` int(11) NOT NULL,
+  `fk_instituicao_cod` int(11) DEFAULT NULL,
+  `cpf` varchar(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `data_nascimento` date NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `senha` varchar(100) DEFAULT NULL,
+  `endereco` varchar(200) DEFAULT NULL,
+  `foto` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `paciente`
+--
+
+INSERT INTO `paciente` (`cod`, `fk_instituicao_cod`, `cpf`, `nome`, `data_nascimento`, `email`, `senha`, `endereco`, `foto`) VALUES
+(2, 1, '12345678900', 'cauê Sampaio', '2000-12-01', 'paciente@gmail.com', 'qwer123', 'casa', 'pac_6a2da825cc1f9.jpg'),
+(5, 1, '12345678901', 'Mikael', '2000-01-01', 'Mikael.111@gmail.com', '', 'prédio', 'pac_6a2da84391447.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `prescrever`
+--
+
+CREATE TABLE `prescrever` (
+  `descricao` text DEFAULT NULL,
+  `modo_uso` text DEFAULT NULL,
+  `fk_receita_cod` int(11) NOT NULL,
+  `fk_medicamento_cod` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `prontuario`
+--
+
+CREATE TABLE `prontuario` (
+  `cod` int(11) NOT NULL,
+  `fk_paciente_cpf` varchar(11) DEFAULT NULL,
+  `foto` varchar(200) DEFAULT NULL,
+  `tipo_sanguineo` varchar(5) DEFAULT NULL,
+  `doencas_cronicas` text DEFAULT NULL,
+  `doencas_geneticas` text DEFAULT NULL,
+  `doencas_autoimunes` text DEFAULT NULL,
+  `outros` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `prontuario`
+--
+
+INSERT INTO `prontuario` (`cod`, `fk_paciente_cpf`, `foto`, `tipo_sanguineo`, `doencas_cronicas`, `doencas_geneticas`, `doencas_autoimunes`, `outros`) VALUES
+(1, '12345678900', NULL, 'A+', 'sada', 'asddad', 'sadasd', 'asda');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `receita`
+--
+
+CREATE TABLE `receita` (
+  `cod` int(11) NOT NULL,
+  `fk_paciente_cod` int(11) DEFAULT NULL,
+  `fk_medico_cod` int(11) DEFAULT NULL,
+  `data_receita` date DEFAULT NULL,
+  `descricao` text DEFAULT NULL,
+  `tipo` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `receita`
+--
+
+INSERT INTO `receita` (`cod`, `fk_paciente_cod`, `fk_medico_cod`, `data_receita`, `descricao`, `tipo`) VALUES
+(1, 2, 1, '2026-06-11', 'adada', 'Receita genérica');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `solicitacao`
+--
+
+CREATE TABLE `solicitacao` (
+  `cod` int(11) NOT NULL,
+  `fk_paciente_cod` int(11) NOT NULL,
+  `fk_medico_cod` int(11) DEFAULT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `motivo` text NOT NULL,
+  `regime` varchar(50) DEFAULT NULL,
+  `resposta` text DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `solicitacao`
+--
+
+INSERT INTO `solicitacao` (`cod`, `fk_paciente_cod`, `fk_medico_cod`, `tipo`, `motivo`, `regime`, `resposta`, `status`) VALUES
+(2, 2, NULL, 'Agendamento', 'dor nas costa', NULL, NULL, 'Agendado');
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `admin`
+--
+ALTER TABLE `admin`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Índices de tabela `agendamento`
+--
+ALTER TABLE `agendamento`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_solicitacao_cod` (`fk_solicitacao_cod`);
+
+--
+-- Índices de tabela `consulta`
+--
+ALTER TABLE `consulta`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_agendamento_cod` (`fk_agendamento_cod`);
+
+--
+-- Índices de tabela `declaracao`
+--
+ALTER TABLE `declaracao`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_paciente_cod` (`fk_paciente_cod`),
+  ADD KEY `fk_medico_cod` (`fk_medico_cod`);
+
+--
+-- Índices de tabela `exame`
+--
+ALTER TABLE `exame`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_solicitacao_cod` (`fk_solicitacao_cod`);
+
+--
+-- Índices de tabela `instituicao`
+--
+ALTER TABLE `instituicao`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `cnpj` (`cnpj`);
+
+--
+-- Índices de tabela `medicamento`
+--
+ALTER TABLE `medicamento`
+  ADD PRIMARY KEY (`cod`);
+
+--
+-- Índices de tabela `medico`
+--
+ALTER TABLE `medico`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `cpf` (`cpf`),
+  ADD UNIQUE KEY `crm` (`crm`),
+  ADD UNIQUE KEY `rqe` (`rqe`),
+  ADD KEY `fk_instituicao_cod` (`fk_instituicao_cod`);
+
+--
+-- Índices de tabela `monitoramento`
+--
+ALTER TABLE `monitoramento`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `fk_paciente_cpf` (`fk_paciente_cpf`);
+
+--
+-- Índices de tabela `paciente`
+--
+ALTER TABLE `paciente`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `cpf` (`cpf`),
+  ADD KEY `fk_instituicao_cod` (`fk_instituicao_cod`);
+
+--
+-- Índices de tabela `prescrever`
+--
+ALTER TABLE `prescrever`
+  ADD PRIMARY KEY (`fk_receita_cod`,`fk_medicamento_cod`),
+  ADD KEY `fk_medicamento_cod` (`fk_medicamento_cod`);
+
+--
+-- Índices de tabela `prontuario`
+--
+ALTER TABLE `prontuario`
+  ADD PRIMARY KEY (`cod`),
+  ADD UNIQUE KEY `fk_paciente_cpf` (`fk_paciente_cpf`);
+
+--
+-- Índices de tabela `receita`
+--
+ALTER TABLE `receita`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_paciente_cod` (`fk_paciente_cod`),
+  ADD KEY `fk_medico_cod` (`fk_medico_cod`);
+
+--
+-- Índices de tabela `solicitacao`
+--
+ALTER TABLE `solicitacao`
+  ADD PRIMARY KEY (`cod`),
+  ADD KEY `fk_paciente_cod` (`fk_paciente_cod`),
+  ADD KEY `fk_medico_cod` (`fk_medico_cod`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `admin`
+--
+ALTER TABLE `admin`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `agendamento`
+--
+ALTER TABLE `agendamento`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `consulta`
+--
+ALTER TABLE `consulta`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `declaracao`
+--
+ALTER TABLE `declaracao`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `exame`
+--
+ALTER TABLE `exame`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `instituicao`
+--
+ALTER TABLE `instituicao`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `medicamento`
+--
+ALTER TABLE `medicamento`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `medico`
+--
+ALTER TABLE `medico`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `monitoramento`
+--
+ALTER TABLE `monitoramento`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de tabela `paciente`
+--
+ALTER TABLE `paciente`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `prontuario`
+--
+ALTER TABLE `prontuario`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `receita`
+--
+ALTER TABLE `receita`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de tabela `solicitacao`
+--
+ALTER TABLE `solicitacao`
+  MODIFY `cod` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `agendamento`
+--
+ALTER TABLE `agendamento`
+  ADD CONSTRAINT `agendamento_ibfk_1` FOREIGN KEY (`fk_solicitacao_cod`) REFERENCES `solicitacao` (`cod`);
+
+--
+-- Restrições para tabelas `consulta`
+--
+ALTER TABLE `consulta`
+  ADD CONSTRAINT `consulta_ibfk_1` FOREIGN KEY (`fk_agendamento_cod`) REFERENCES `agendamento` (`cod`);
+
+--
+-- Restrições para tabelas `declaracao`
+--
+ALTER TABLE `declaracao`
+  ADD CONSTRAINT `declaracao_ibfk_1` FOREIGN KEY (`fk_paciente_cod`) REFERENCES `paciente` (`cod`),
+  ADD CONSTRAINT `declaracao_ibfk_2` FOREIGN KEY (`fk_medico_cod`) REFERENCES `medico` (`cod`);
+
+--
+-- Restrições para tabelas `exame`
+--
+ALTER TABLE `exame`
+  ADD CONSTRAINT `exame_ibfk_1` FOREIGN KEY (`fk_solicitacao_cod`) REFERENCES `solicitacao` (`cod`);
+
+--
+-- Restrições para tabelas `medico`
+--
+ALTER TABLE `medico`
+  ADD CONSTRAINT `medico_ibfk_1` FOREIGN KEY (`fk_instituicao_cod`) REFERENCES `instituicao` (`cod`);
+
+--
+-- Restrições para tabelas `monitoramento`
+--
+ALTER TABLE `monitoramento`
+  ADD CONSTRAINT `monitoramento_ibfk_1` FOREIGN KEY (`fk_paciente_cpf`) REFERENCES `paciente` (`cpf`);
+
+--
+-- Restrições para tabelas `paciente`
+--
+ALTER TABLE `paciente`
+  ADD CONSTRAINT `paciente_ibfk_1` FOREIGN KEY (`fk_instituicao_cod`) REFERENCES `instituicao` (`cod`);
+
+--
+-- Restrições para tabelas `prescrever`
+--
+ALTER TABLE `prescrever`
+  ADD CONSTRAINT `prescrever_ibfk_1` FOREIGN KEY (`fk_receita_cod`) REFERENCES `receita` (`cod`),
+  ADD CONSTRAINT `prescrever_ibfk_2` FOREIGN KEY (`fk_medicamento_cod`) REFERENCES `medicamento` (`cod`);
+
+--
+-- Restrições para tabelas `prontuario`
+--
+ALTER TABLE `prontuario`
+  ADD CONSTRAINT `prontuario_ibfk_1` FOREIGN KEY (`fk_paciente_cpf`) REFERENCES `paciente` (`cpf`);
+
+--
+-- Restrições para tabelas `receita`
+--
+ALTER TABLE `receita`
+  ADD CONSTRAINT `receita_ibfk_1` FOREIGN KEY (`fk_paciente_cod`) REFERENCES `paciente` (`cod`),
+  ADD CONSTRAINT `receita_ibfk_2` FOREIGN KEY (`fk_medico_cod`) REFERENCES `medico` (`cod`);
+
+--
+-- Restrições para tabelas `solicitacao`
+--
+ALTER TABLE `solicitacao`
+  ADD CONSTRAINT `solicitacao_ibfk_1` FOREIGN KEY (`fk_paciente_cod`) REFERENCES `paciente` (`cod`),
+  ADD CONSTRAINT `solicitacao_ibfk_2` FOREIGN KEY (`fk_medico_cod`) REFERENCES `medico` (`cod`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
