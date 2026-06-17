@@ -18,6 +18,7 @@ if (!function_exists('renderNavbar')) {
             $dropdownLinks = [
                 // Gestão
                 ['section' => 'Gestão'],
+                 ['href'=>'admin_dashboard.php','icon'=>'bi bi-person-circle',   'label'=>'Meu Portal'],
                 ['href'=>'paciente.php',    'icon'=>'bi bi-people',                'label'=>'Pacientes'],
                 ['href'=>'medico.php',      'icon'=>'bi bi-person-badge',          'label'=>'Médicos'],
                 ['href'=>'instituicao.php', 'icon'=>'bi bi-building',              'label'=>'Instituições'],
